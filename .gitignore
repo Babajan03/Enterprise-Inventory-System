@@ -1,0 +1,18 @@
+# Visual Studio
+.vs/
+
+# SQL Server backups
+*.bak
+
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# VS Code
+.vscode/settings.json
