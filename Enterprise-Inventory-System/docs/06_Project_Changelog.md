@@ -16,9 +16,15 @@
 - Database Architecture
 - Database Standards
 
-### Next Version
+## Version 1.0.1
+
+### Completed
 
 - Unit Table
+- Unit Seed Data
+
+### Next Version
+
 - Tax Table
 - Currency Table
 - Product Table
