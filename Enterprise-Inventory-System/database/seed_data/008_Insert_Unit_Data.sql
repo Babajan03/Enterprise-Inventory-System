@@ -20,3 +20,9 @@ VALUES
 ('UNT009', 'Pack', 'PK', 'Pack of items'),
 ('UNT010', 'Dozen', 'DOZ', 'Twelve items');
 GO
+
+
+
+SELECT *
+FROM master.Unit
+ORDER BY UnitName;

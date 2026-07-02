@@ -19,3 +19,7 @@ VALUES
 ('CAT009', 'Accessories', 'Computer Accessories'),
 ('CAT010', 'Software', 'Software Products');
 GO
+
+
+SELECT *
+FROM master.Category;

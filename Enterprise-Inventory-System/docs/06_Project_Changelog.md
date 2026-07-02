@@ -28,3 +28,16 @@
 - Tax Table
 - Currency Table
 - Product Table
+
+## Version 1.0.2
+
+### Completed
+
+- Tax Table
+- Tax Seed Data
+- Currency Table
+- Currency Seed Data
+
+### Next Version
+
+- Product Master

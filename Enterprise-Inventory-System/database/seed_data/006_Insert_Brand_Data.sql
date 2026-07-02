@@ -19,3 +19,8 @@ VALUES
 ('BR009','LG','LG Electronics'),
 ('BR010','Logitech','Logitech');
 GO
+
+
+SELECT *
+FROM master.Brand
+ORDER BY BrandName;
