@@ -139,3 +139,48 @@ END CATCH
 END
 
 GO
+
+
+
+
+EXEC master.SP_Add_Product
+
+@ProductCode='PRD0011',
+
+@ProductName='Lenovo ThinkPad',
+
+@ProductDescription='Business Laptop',
+
+@SKU='SKU0011',
+
+@Barcode='890100000011',
+
+@HSNCode='847130',
+
+@CategoryID=1,
+
+@BrandID=1,
+
+@UnitID=1,
+
+@TaxID=4,
+
+@CurrencyID=1,
+
+@CostPrice=55000,
+
+@SellingPrice=62000,
+
+@MinimumStock=5,
+
+@MaximumStock=100,
+
+@ReorderLevel=10;
+
+
+
+
+
+SELECT *
+FROM master.Product
+WHERE ProductCode='PRD0011';

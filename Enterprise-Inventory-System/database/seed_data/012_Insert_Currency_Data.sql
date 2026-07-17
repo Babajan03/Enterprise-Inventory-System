@@ -33,3 +33,9 @@ GO
 
 PRINT 'Currency master data inserted successfully.';
 GO
+
+
+
+SELECT *
+FROM master.Currency
+ORDER BY CurrencyCode;

@@ -33,3 +33,8 @@ GO
 
 PRINT 'Tax master data inserted successfully.';
 GO
+
+
+SELECT *
+FROM master.Tax
+ORDER BY TaxPercentage;

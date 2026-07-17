@@ -62,3 +62,9 @@ GO
 
 PRINT 'master.Currency created successfully.';
 GO
+
+
+
+
+SELECT *
+FROM master.Currency;

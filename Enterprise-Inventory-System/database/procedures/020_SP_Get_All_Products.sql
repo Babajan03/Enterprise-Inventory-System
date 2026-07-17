@@ -69,6 +69,4 @@ END
 GO
 
 
-
-
 EXEC master.SP_Get_All_Products;

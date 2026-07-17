@@ -188,3 +188,10 @@ GO
 
 PRINT 'Indexes created successfully.';
 GO
+
+
+
+EXEC sp_help 'master.Product';
+
+SELECT *
+FROM master.Product;

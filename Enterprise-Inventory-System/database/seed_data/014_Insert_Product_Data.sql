@@ -55,3 +55,12 @@ GO
 
 PRINT 'Product master data inserted successfully.';
 GO
+
+
+
+SELECT
+    ProductID,
+    ProductCode,
+    ProductName,
+    SellingPrice
+FROM master.Product;
