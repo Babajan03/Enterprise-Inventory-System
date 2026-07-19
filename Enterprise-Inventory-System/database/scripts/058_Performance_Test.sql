@@ -41,3 +41,16 @@ SET STATISTICS TIME OFF;
 SET STATISTICS IO OFF;
 
 GO
+
+
+
+USE InventoryManagementDB;
+GO
+
+SELECT
+    OBJECT_SCHEMA_NAME(i.object_id) AS SchemaName,
+    OBJECT_NAME(i.object_id) AS TableName,
+    i.name AS IndexName
+FROM sys.indexes i
+WHERE i.name IS NOT NULL
+ORDER BY TableName, IndexName;
