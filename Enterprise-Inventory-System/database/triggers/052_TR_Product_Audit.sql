@@ -83,3 +83,17 @@ ON D.ProductID = I.ProductID;
 
 END;
 GO
+
+
+
+SELECT *
+FROM master.Product;
+
+
+UPDATE master.Product
+SET SellingPrice = 56000
+WHERE ProductID = 1;
+
+
+SELECT *
+FROM audit.ProductAudit;

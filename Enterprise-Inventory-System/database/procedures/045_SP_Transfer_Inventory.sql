@@ -105,3 +105,22 @@ END CATCH
 
 END;
 GO
+
+
+
+
+SELECT *
+FROM inventory.Inventory;
+
+EXEC inventory.SP_Adjust_Inventory
+    @InventoryId = 1,
+    @AdjustmentQuantity = -3,
+    @Reason = 'Damaged Stock',
+    @CreatedBy = 'SYSTEM';
+
+
+    SELECT inventory.FN_Get_Current_Stock
+(
+    1,
+    1
+) AS CurrentStock;

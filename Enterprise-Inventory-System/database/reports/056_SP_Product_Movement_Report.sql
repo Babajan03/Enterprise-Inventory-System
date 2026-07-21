@@ -64,3 +64,11 @@ ORDER BY IT.TransactionDate DESC;
 
 END;
 GO
+
+
+
+EXEC report.SP_Product_Movement_Report;
+
+
+EXEC report.SP_Product_Movement_Report
+    @ProductId = 1;

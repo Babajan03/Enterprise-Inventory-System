@@ -110,3 +110,108 @@ END CATCH
 
 END;
 GO
+
+
+
+EXEC sales.SP_Create_Sales_Order
+    @CustomerId = 1,
+    @CreatedBy = 'SYSTEM';
+
+
+    EXEC sales.SP_Add_Sales_Order_Item
+    @SalesOrderId = 1,
+    @ProductId = 1,
+    @Quantity = 2,
+    @UnitPrice = 55000,
+    @CreatedBy = 'SYSTEM';
+
+
+    EXEC sales.SP_Approve_Sales_Order
+    @SalesOrderId = 1,
+    @ApprovedBy = 'SYSTEM';
+
+
+
+    EXEC sales.SP_Ship_Sales_Order
+    @SalesOrderId = 1,
+    @CreatedBy = 'SYSTEM';
+
+
+    SELECT *
+FROM sales.SalesOrderHeader;
+
+
+SELECT *
+FROM sales.SalesOrderDetail;
+
+
+SELECT *
+FROM inventory.Inventory;
+
+
+SELECT *
+FROM inventory.InventoryTransaction;
+
+
+
+SELECT *
+FROM sales.Customer;
+
+SELECT *
+FROM sales.Customer;
+
+EXEC sales.SP_Create_Sales_Order
+    @CustomerId = 1,
+    @CreatedBy = 'SYSTEM';
+    
+
+    EXEC sales.SP_Add_Sales_Order_Item
+    @SalesOrderId = 1,
+    @ProductId = 1,
+    @Quantity = 2,
+    @UnitPrice = 55000,
+    @CreatedBy = 'SYSTEM';
+
+
+    SELECT *
+FROM sales.SalesOrderDetail;
+
+EXEC sales.SP_Approve_Sales_Order
+    @SalesOrderId = 1,
+    @ApprovedBy = 'SYSTEM';
+
+    SELECT 
+    SalesOrderId,
+    OrderStatus,
+    TotalAmount
+FROM sales.SalesOrderHeader;
+
+
+EXEC sales.SP_Ship_Sales_Order
+    @SalesOrderId = 1,
+    @CreatedBy = 'SYSTEM';
+
+
+
+    SELECT *
+FROM sales.SalesOrderHeader;
+
+
+SELECT *
+FROM sales.SalesOrderDetail;
+
+
+SELECT *
+FROM inventory.Inventory;
+
+
+SELECT *
+FROM inventory.InventoryTransaction;
+
+
+SELECT *
+FROM sales.SalesOrderHeader;
+
+SELECT *
+FROM sales.SalesOrderDetail
+WHERE SalesOrderId = 1;

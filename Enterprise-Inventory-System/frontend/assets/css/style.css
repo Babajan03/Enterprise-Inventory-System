@@ -1,1 +1,13 @@
+@import url('sidebar.css');
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f4f6f9;
+}
+
+* {
+    box-sizing: border-box;
+}
+
 body{background:#f5f7fb}

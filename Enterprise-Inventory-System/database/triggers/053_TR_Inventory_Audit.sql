@@ -73,3 +73,16 @@ ON D.InventoryId = I.InventoryId;
 
 END;
 GO
+
+
+SELECT *
+FROM inventory.Inventory;
+
+
+UPDATE inventory.Inventory
+SET Quantity = Quantity + 5
+WHERE InventoryId = 1;
+
+
+SELECT *
+FROM audit.InventoryAudit;

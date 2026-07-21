@@ -5,7 +5,8 @@
 */
 
 
-USE EnterpriseInventoryDB;
+
+USE InventoryManagementDB;
 GO
 
 
@@ -57,3 +58,16 @@ CREATE TABLE inventory.Warehouse
     ModifiedBy VARCHAR(50) NULL
 );
 GO
+
+
+USE InventoryManagementDB;
+GO
+
+SELECT 
+    TABLE_SCHEMA,
+    TABLE_NAME,
+    TABLE_TYPE
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_NAME = 'Warehouse';
+
+EXEC sp_help 'inventory.Warehouse';

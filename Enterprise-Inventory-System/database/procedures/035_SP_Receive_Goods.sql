@@ -72,3 +72,45 @@ BEGIN
 
 END;
 GO
+
+
+
+EXEC inventory.SP_Receive_Goods
+    @InventoryId = 1,
+    @Quantity = 50,
+    @ReferenceNumber = 'GRN001',
+    @CreatedBy = 'SYSTEM';
+
+
+    SELECT *
+FROM inventory.Inventory;
+
+SELECT *
+FROM inventory.InventoryTransaction;
+
+
+USE InventoryManagementDB;
+GO
+
+SELECT *
+FROM master.Product;
+
+SELECT *
+FROM inventory.Warehouse;
+
+
+
+USE InventoryManagementDB;
+GO
+
+SELECT
+    I.InventoryId,
+    W.WarehouseName,
+    P.ProductName,
+    I.Quantity,
+    I.ReorderLevel
+FROM inventory.Inventory I
+INNER JOIN inventory.Warehouse W
+    ON I.WarehouseId = W.WarehouseId
+INNER JOIN master.Product P
+    ON I.ProductId = P.ProductID;

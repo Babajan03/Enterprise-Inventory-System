@@ -51,3 +51,15 @@ ON SOD.ProductId = P.ProductID;
 
 
 GO
+
+
+SELECT *
+FROM report.VW_Current_Inventory;
+
+
+SELECT *
+FROM report.VW_Product_Master;
+
+
+SELECT *
+FROM report.VW_Sales_History;

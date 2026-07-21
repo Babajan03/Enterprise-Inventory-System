@@ -25,3 +25,7 @@ VALUES
     'SYSTEM'
 );
 GO
+
+
+SELECT *
+FROM inventory.Inventory;

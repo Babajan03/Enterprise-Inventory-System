@@ -43,3 +43,6 @@ WHERE I.Quantity <= P.ReorderLevel;
 
 END;
 GO
+
+
+EXEC report.SP_Low_Stock_Report;

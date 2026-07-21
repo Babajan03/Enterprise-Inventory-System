@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>EIMS - Login</title>
+    <link rel="stylesheet" href="assets/css/login.css" />
+</head>
+<body>
+
+    <div class="login-container">
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <h2>EIMS Login</h2>
+
+            <div id="loginError" style="display:none; color:red; margin-bottom:10px;"></div>
+
+            <input type="text" id="username" placeholder="Username" required />
+            <input type="password" id="password" placeholder="Password" required />
+
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/auth.js"></script>
+
+</body>
+</html>

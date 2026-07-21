@@ -11,30 +11,70 @@ INSERT INTO inventory.Warehouse
 (
     WarehouseCode,
     WarehouseName,
-    Location,
+    AddressLine1,
+    AddressLine2,
+    City,
+    State,
+    Country,
+    PostalCode,
+    ContactPerson,
+    ContactNumber,
     IsActive,
-    CreatedDate
+    CreatedDate,
+    CreatedBy
 )
 VALUES
 (
     'WH001',
     'Main Warehouse',
+    'Hitech City Road',
+    'Madhapur',
     'Hyderabad',
+    'Telangana',
+    'India',
+    '500081',
+    'Raj Kumar',
+    '9000000001',
     1,
-    GETDATE()
+    SYSDATETIME(),
+    'SYSTEM'
 ),
 (
     'WH002',
-    'Secondary Warehouse',
+    'Bangalore Distribution Center',
+    'Electronic City Phase 1',
+    NULL,
     'Bangalore',
+    'Karnataka',
+    'India',
+    '560100',
+    'Arun Kumar',
+    '9000000002',
     1,
-    GETDATE()
+    SYSDATETIME(),
+    'SYSTEM'
 ),
 (
     'WH003',
-    'Transit Warehouse',
+    'Chennai Transit Warehouse',
+    'OMR Road',
+    NULL,
     'Chennai',
+    'Tamil Nadu',
+    'India',
+    '600096',
+    'Vijay Kumar',
+    '9000000003',
     1,
-    GETDATE()
+    SYSDATETIME(),
+    'SYSTEM'
 );
 GO
+
+
+
+SELECT COUNT(*) AS WarehouseCount
+FROM inventory.Warehouse;
+
+SELECT *
+FROM inventory.Warehouse;
