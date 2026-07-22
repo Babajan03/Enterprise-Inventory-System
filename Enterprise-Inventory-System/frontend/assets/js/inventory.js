@@ -1,6 +1,7 @@
 let inventoryTable;
 
 async function loadInventory() {
+    await new Promise(r => setTimeout(r, 50));
     if ($.fn.DataTable.isDataTable("#inventoryTable")) {
         inventoryTable.destroy();
     }

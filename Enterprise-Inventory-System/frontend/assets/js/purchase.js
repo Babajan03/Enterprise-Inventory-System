@@ -2,6 +2,7 @@ let purchaseTable;
 let currentOrderId = null;
 
 async function loadPurchase() {
+    await new Promise(r => setTimeout(r, 50));
     if ($.fn.DataTable.isDataTable("#purchaseTable")) {
         purchaseTable.destroy();
     }
@@ -71,34 +72,37 @@ async function savePurchaseOrder() {
     bootstrap.Modal.getInstance(document.getElementById("purchaseModal")).hide();
     loadPurchase();
     if (result.PurchaseOrderID) {
-        viewItems(result.PurchaseOrderID, payload.PurchaseOrderNumber);
+        setTimeout(() => viewItems(result.PurchaseOrderID, payload.PurchaseOrderNumber), 500);
     }
 }
 
 async function viewItems(orderId, orderNumber) {
     currentOrderId = orderId;
     document.getElementById("itemsModalTitle").textContent = "Items - " + orderNumber;
-
     const products = await api.get("/products/");
     const select = document.getElementById("itemProduct");
     select.innerHTML = products.map(p =>
         `<option value="${p.ProductID}">${p.ProductName}</option>`
     ).join("");
-
     const items = await api.get(`/purchase/${orderId}/items`);
-    const tbody = document.getElementById("itemsTableBody");
-    tbody.innerHTML = items.map(i => `
-        <tr>
-            <td>${i.ProductName}</td>
-            <td>${i.OrderedQuantity}</td>
-            <td>₹${i.UnitPrice}</td>
-            <td>₹${i.DiscountAmount}</td>
-            <td>₹${i.TaxAmount}</td>
-            <td>₹${i.LineTotal}</td>
-        </tr>
-    `).join("");
-
+    renderItemsTable(items);
     new bootstrap.Modal(document.getElementById("itemsModal")).show();
+}
+
+function renderItemsTable(items) {
+    const tbody = document.getElementById("itemsTableBody");
+    tbody.innerHTML = items.length === 0
+        ? `<tr><td colspan="6" class="text-center">No items yet</td></tr>`
+        : items.map(i => `
+            <tr>
+                <td>${i.ProductName}</td>
+                <td>${i.OrderedQuantity}</td>
+                <td>₹${i.UnitPrice}</td>
+                <td>₹${i.DiscountAmount}</td>
+                <td>₹${i.TaxAmount}</td>
+                <td>₹${i.LineTotal}</td>
+            </tr>
+        `).join("");
 }
 
 async function addOrderItem() {
@@ -111,17 +115,7 @@ async function addOrderItem() {
     };
     await api.post(`/purchase/${currentOrderId}/items`, payload);
     const items = await api.get(`/purchase/${currentOrderId}/items`);
-    const tbody = document.getElementById("itemsTableBody");
-    tbody.innerHTML = items.map(i => `
-        <tr>
-            <td>${i.ProductName}</td>
-            <td>${i.OrderedQuantity}</td>
-            <td>₹${i.UnitPrice}</td>
-            <td>₹${i.DiscountAmount}</td>
-            <td>₹${i.TaxAmount}</td>
-            <td>₹${i.LineTotal}</td>
-        </tr>
-    `).join("");
+    renderItemsTable(items);
 }
 
 async function updateStatus(orderId, status) {
