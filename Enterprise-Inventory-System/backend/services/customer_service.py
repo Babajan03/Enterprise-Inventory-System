@@ -1,13 +1,13 @@
 from database import get_conn
 
 
-class SupplierService:
+class CustomerService:
 
     @staticmethod
     def get_all():
         conn = get_conn()
         cursor = conn.cursor()
-        cursor.execute("EXEC master.SP_Get_All_Suppliers")
+        cursor.execute("EXEC sales.SP_Get_All_Customers")
         columns = [column[0] for column in cursor.description]
         data = [dict(zip(columns, row)) for row in cursor.fetchall()]
         cursor.close()
@@ -15,10 +15,10 @@ class SupplierService:
         return data
 
     @staticmethod
-    def get_by_id(supplier_id):
+    def get_by_id(customer_id):
         conn = get_conn()
         cursor = conn.cursor()
-        cursor.execute("EXEC master.SP_Get_Supplier_By_Id ?", supplier_id)
+        cursor.execute("EXEC sales.SP_Get_Customer_By_Id ?", customer_id)
         row = cursor.fetchone()
         if not row:
             cursor.close()
@@ -35,17 +35,15 @@ class SupplierService:
         conn = get_conn()
         cursor = conn.cursor()
         cursor.execute(
-            "EXEC master.SP_Add_Supplier ?,?,?,?,?,?,?,?,?,?,?,?",
-            data["SupplierCode"],
-            data["SupplierName"],
-            data["ContactPerson"],
+            "EXEC sales.SP_Add_Customer ?,?,?,?,?,?,?,?,?,?",
+            data["CustomerCode"],
+            data["CustomerName"],
             data["Email"],
-            data["Phone"],
-            data["GSTNumber"],
+            data["PhoneNumber"],
             data["AddressLine1"],
             data["City"],
-            data["StateName"],
-            data["CountryName"],
+            data["State"],
+            data["Country"],
             data["PostalCode"],
             data["IsActive"]
         )
@@ -54,22 +52,20 @@ class SupplierService:
         conn.close()
 
     @staticmethod
-    def update(supplier_id, data):
+    def update(customer_id, data):
         conn = get_conn()
         cursor = conn.cursor()
         cursor.execute(
-            "EXEC master.SP_Update_Supplier ?,?,?,?,?,?,?,?,?,?,?,?,?",
-            supplier_id,
-            data["SupplierCode"],
-            data["SupplierName"],
-            data["ContactPerson"],
+            "EXEC sales.SP_Update_Customer ?,?,?,?,?,?,?,?,?,?,?",
+            customer_id,
+            data["CustomerCode"],
+            data["CustomerName"],
             data["Email"],
-            data["Phone"],
-            data["GSTNumber"],
+            data["PhoneNumber"],
             data["AddressLine1"],
             data["City"],
-            data["StateName"],
-            data["CountryName"],
+            data["State"],
+            data["Country"],
             data["PostalCode"],
             data["IsActive"]
         )
@@ -78,10 +74,10 @@ class SupplierService:
         conn.close()
 
     @staticmethod
-    def delete(supplier_id):
+    def delete(customer_id):
         conn = get_conn()
         cursor = conn.cursor()
-        cursor.execute("EXEC master.SP_Delete_Supplier ?", supplier_id)
+        cursor.execute("EXEC sales.SP_Delete_Customer ?", customer_id)
         conn.commit()
         cursor.close()
         conn.close()

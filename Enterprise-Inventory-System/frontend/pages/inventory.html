@@ -1,0 +1,52 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>Inventory</h4>
+</div>
+
+<div class="card">
+    <div class="card-body table-responsive">
+        <table id="inventoryTable" class="table table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Product Code</th>
+                    <th>Product Name</th>
+                    <th>Warehouse</th>
+                    <th>Quantity</th>
+                    <th>Reorder Level</th>
+                    <th>Last Updated</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="adjustModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Adjust Inventory</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="adjustInventoryID" />
+                <div class="mb-3">
+                    <label>Product</label>
+                    <input type="text" id="adjustProductName" class="form-control" disabled />
+                </div>
+                <div class="mb-3">
+                    <label>New Quantity</label>
+                    <input type="number" id="adjustQuantity" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label>Remarks</label>
+                    <input type="text" id="adjustRemarks" class="form-control" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-primary" onclick="saveAdjustment()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>

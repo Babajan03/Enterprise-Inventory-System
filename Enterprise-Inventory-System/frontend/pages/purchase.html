@@ -1,0 +1,120 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>Purchase Orders</h4>
+    <button class="btn btn-primary" onclick="openCreateOrder()">
+        <i class="bi bi-plus-circle"></i> Create Order
+    </button>
+</div>
+
+<div class="card">
+    <div class="card-body table-responsive">
+        <table id="purchaseTable" class="table table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Order No</th>
+                    <th>Supplier</th>
+                    <th>Order Date</th>
+                    <th>Expected Delivery</th>
+                    <th>Total Amount</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Create Order Modal -->
+<div class="modal fade" id="purchaseModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Purchase Order</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label>Order Number</label>
+                        <input type="text" id="poNumber" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label>Supplier</label>
+                        <select id="poSupplier" class="form-select"></select>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Order Date</label>
+                        <input type="date" id="poOrderDate" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label>Expected Delivery</label>
+                        <input type="date" id="poDeliveryDate" class="form-control" />
+                    </div>
+                    <div class="col-md-12">
+                        <label>Remarks</label>
+                        <input type="text" id="poRemarks" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-primary" onclick="savePurchaseOrder()">Create</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Items Modal -->
+<div class="modal fade" id="itemsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="itemsModalTitle">Order Items</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label>Product</label>
+                        <select id="itemProduct" class="form-select"></select>
+                    </div>
+                    <div class="col-md-2">
+                        <label>Quantity</label>
+                        <input type="number" id="itemQty" class="form-control" />
+                    </div>
+                    <div class="col-md-2">
+                        <label>Unit Price</label>
+                        <input type="number" id="itemPrice" class="form-control" />
+                    </div>
+                    <div class="col-md-2">
+                        <label>Discount</label>
+                        <input type="number" id="itemDiscount" class="form-control" value="0" />
+                    </div>
+                    <div class="col-md-2">
+                        <label>Tax</label>
+                        <input type="number" id="itemTax" class="form-control" value="0" />
+                    </div>
+                </div>
+                <button class="btn btn-success mb-3" onclick="addOrderItem()">
+                    <i class="bi bi-plus"></i> Add Item
+                </button>
+                <table id="itemsTable" class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Qty</th>
+                            <th>Unit Price</th>
+                            <th>Discount</th>
+                            <th>Tax</th>
+                            <th>Line Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="itemsTableBody"></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,13 +1,13 @@
 from database import get_conn
 
 
-class SupplierService:
+class WarehouseService:
 
     @staticmethod
     def get_all():
         conn = get_conn()
         cursor = conn.cursor()
-        cursor.execute("EXEC master.SP_Get_All_Suppliers")
+        cursor.execute("EXEC inventory.SP_Get_All_Warehouses")
         columns = [column[0] for column in cursor.description]
         data = [dict(zip(columns, row)) for row in cursor.fetchall()]
         cursor.close()
@@ -15,10 +15,10 @@ class SupplierService:
         return data
 
     @staticmethod
-    def get_by_id(supplier_id):
+    def get_by_id(warehouse_id):
         conn = get_conn()
         cursor = conn.cursor()
-        cursor.execute("EXEC master.SP_Get_Supplier_By_Id ?", supplier_id)
+        cursor.execute("EXEC inventory.SP_Get_Warehouse_By_Id ?", warehouse_id)
         row = cursor.fetchone()
         if not row:
             cursor.close()
@@ -35,18 +35,16 @@ class SupplierService:
         conn = get_conn()
         cursor = conn.cursor()
         cursor.execute(
-            "EXEC master.SP_Add_Supplier ?,?,?,?,?,?,?,?,?,?,?,?",
-            data["SupplierCode"],
-            data["SupplierName"],
-            data["ContactPerson"],
-            data["Email"],
-            data["Phone"],
-            data["GSTNumber"],
+            "EXEC inventory.SP_Add_Warehouse ?,?,?,?,?,?,?,?,?,?",
+            data["WarehouseCode"],
+            data["WarehouseName"],
             data["AddressLine1"],
             data["City"],
-            data["StateName"],
-            data["CountryName"],
+            data["State"],
+            data["Country"],
             data["PostalCode"],
+            data["ContactPerson"],
+            data["ContactNumber"],
             data["IsActive"]
         )
         conn.commit()
@@ -54,23 +52,21 @@ class SupplierService:
         conn.close()
 
     @staticmethod
-    def update(supplier_id, data):
+    def update(warehouse_id, data):
         conn = get_conn()
         cursor = conn.cursor()
         cursor.execute(
-            "EXEC master.SP_Update_Supplier ?,?,?,?,?,?,?,?,?,?,?,?,?",
-            supplier_id,
-            data["SupplierCode"],
-            data["SupplierName"],
-            data["ContactPerson"],
-            data["Email"],
-            data["Phone"],
-            data["GSTNumber"],
+            "EXEC inventory.SP_Update_Warehouse ?,?,?,?,?,?,?,?,?,?,?",
+            warehouse_id,
+            data["WarehouseCode"],
+            data["WarehouseName"],
             data["AddressLine1"],
             data["City"],
-            data["StateName"],
-            data["CountryName"],
+            data["State"],
+            data["Country"],
             data["PostalCode"],
+            data["ContactPerson"],
+            data["ContactNumber"],
             data["IsActive"]
         )
         conn.commit()
@@ -78,10 +74,10 @@ class SupplierService:
         conn.close()
 
     @staticmethod
-    def delete(supplier_id):
+    def delete(warehouse_id):
         conn = get_conn()
         cursor = conn.cursor()
-        cursor.execute("EXEC master.SP_Delete_Supplier ?", supplier_id)
+        cursor.execute("EXEC inventory.SP_Delete_Warehouse ?", warehouse_id)
         conn.commit()
         cursor.close()
         conn.close()
