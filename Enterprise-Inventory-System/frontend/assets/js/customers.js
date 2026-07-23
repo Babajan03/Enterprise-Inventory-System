@@ -1,9 +1,8 @@
 let customerTable;
 
 async function loadCustomers() {
-    await new Promise(r => setTimeout(r, 50));
     if ($.fn.DataTable.isDataTable("#customerTable")) {
-        customerTable.destroy();
+        $("#customerTable").DataTable().destroy();
     }
     const data = await api.get("/customers/");
     customerTable = $("#customerTable").DataTable({
@@ -27,16 +26,16 @@ async function loadCustomers() {
                 data: null,
                 render: row => `
                     <button class="btn btn-warning btn-sm"
-                        onclick="editCustomer(${row.CustomerId})">Edit</button>
+                        onclick="window.editCustomer(${row.CustomerId})">Edit</button>
                     <button class="btn btn-danger btn-sm ms-1"
-                        onclick="deleteCustomer(${row.CustomerId})">Delete</button>
+                        onclick="window.deleteCustomer(${row.CustomerId})">Delete</button>
                 `
             }
         ]
     });
 }
 
-function openAddCustomer() {
+window.openAddCustomer = function() {
     document.getElementById("customerModalTitle").textContent = "Add Customer";
     ["customerID","customerCode","customerName","customerEmail",
      "customerPhone","customerAddress","customerCity","customerState",
@@ -45,9 +44,9 @@ function openAddCustomer() {
     });
     document.getElementById("customerIsActive").value = "1";
     new bootstrap.Modal(document.getElementById("customerModal")).show();
-}
+};
 
-async function editCustomer(id) {
+window.editCustomer = async function(id) {
     const c = await api.get(`/customers/${id}`);
     document.getElementById("customerModalTitle").textContent = "Edit Customer";
     document.getElementById("customerID").value = c.CustomerId;
@@ -62,9 +61,9 @@ async function editCustomer(id) {
     document.getElementById("customerPostalCode").value = c.PostalCode;
     document.getElementById("customerIsActive").value = c.IsActive ? "1" : "0";
     new bootstrap.Modal(document.getElementById("customerModal")).show();
-}
+};
 
-async function saveCustomer() {
+window.saveCustomer = async function() {
     const id = document.getElementById("customerID").value;
     const payload = {
         CustomerCode: document.getElementById("customerCode").value,
@@ -85,10 +84,16 @@ async function saveCustomer() {
     }
     bootstrap.Modal.getInstance(document.getElementById("customerModal")).hide();
     loadCustomers();
-}
+};
 
-async function deleteCustomer(id) {
+window.deleteCustomer = async function(id) {
     if (!confirm("Delete this customer?")) return;
     await api.delete(`/customers/${id}`);
     loadCustomers();
-}
+};
+
+
+window.openAddCustomer = openAddCustomer;
+window.editCustomer = editCustomer;
+window.deleteCustomer = deleteCustomer;
+window.saveCustomer = saveCustomer;

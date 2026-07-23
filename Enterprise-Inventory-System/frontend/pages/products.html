@@ -1,68 +1,178 @@
 <div class="card shadow-sm">
-
     <div class="card-header bg-white">
-
         <div class="d-flex justify-content-between align-items-center">
-
-            <h4 class="m-0">
-
-                Products
-
-            </h4>
-
-            <button
-                class="btn btn-primary"
-                id="btnAddProduct">
-
-                <i class="bi bi-plus-circle"></i>
-
-                Add Product
-
+            <h4 class="m-0">Products</h4>
+            <button class="btn btn-primary" onclick="openAddProduct()">
+                <i class="bi bi-plus-circle"></i> Add Product
             </button>
-
         </div>
-
     </div>
-
-    <div class="card-body">
-
-        <table
-            id="productTable"
-            class="display table table-striped"
-            style="width:100%">
-
+    <div class="card-body table-responsive">
+        <table id="productTable" class="display table table-striped" style="width:100%">
             <thead>
-
-            <tr>
-
-                <th>Code</th>
-
-                <th>Name</th>
-
-                <th>Category</th>
-
-                <th>Brand</th>
-
-                <th>Price</th>
-
-                <th>Min Stock</th>
-
-                <th>Reorder</th>
-
-                <th>Status</th>
-
-                <th width="150">
-
-                    Action
-
-                </th>
-
-            </tr>
-
+                <tr>
+                    <th>Code</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Brand</th>
+                    <th>Price</th>
+                    <th>Min Stock</th>
+                    <th>Reorder</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
             </thead>
-
+            <tbody></tbody>
         </table>
-
     </div>
+</div>
 
+<!-- Add/Edit Modal -->
+<div class="modal fade" id="productModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="productModalTitle">Add Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="productID" />
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label>Product Code</label>
+                        <input type="text" id="productCode" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Product Name</label>
+                        <input type="text" id="productName" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>SKU</label>
+                        <input type="text" id="productSKU" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Barcode</label>
+                        <input type="text" id="productBarcode" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>HSN Code</label>
+                        <input type="text" id="productHSN" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Category</label>
+                        <select id="productCategory" class="form-select">
+                            <option value="1">Laptop</option>
+                            <option value="2">Desktop</option>
+                            <option value="3">Monitor</option>
+                            <option value="4">Keyboard</option>
+                            <option value="5">Mouse</option>
+                            <option value="6">Printer</option>
+                            <option value="7">Networking</option>
+                            <option value="8">Storage</option>
+                            <option value="9">Accessories</option>
+                            <option value="10">Software</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Brand</label>
+                        <select id="productBrand" class="form-select">
+                            <option value="1">Dell</option>
+                            <option value="2">HP</option>
+                            <option value="3">Lenovo</option>
+                            <option value="4">Apple</option>
+                            <option value="5">Samsung</option>
+                            <option value="6">Acer</option>
+                            <option value="7">Asus</option>
+                            <option value="8">MSI</option>
+                            <option value="9">LG</option>
+                            <option value="10">Logitech</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Unit</label>
+                        <select id="productUnit" class="form-select">
+                            <option value="1">Piece</option>
+                            <option value="2">Kilogram</option>
+                            <option value="3">Gram</option>
+                            <option value="4">Liter</option>
+                            <option value="5">Milliliter</option>
+                            <option value="6">Meter</option>
+                            <option value="7">Centimeter</option>
+                            <option value="8">Box</option>
+                            <option value="9">Pack</option>
+                            <option value="10">Dozen</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Tax</label>
+                        <select id="productTax" class="form-select">
+                            <option value="1">GST 0%</option>
+                            <option value="2">GST 5%</option>
+                            <option value="3">GST 12%</option>
+                            <option value="4">GST 18%</option>
+                            <option value="5">GST 28%</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Currency</label>
+                        <select id="productCurrency" class="form-select">
+                            <option value="1">Indian Rupee</option>
+                            <option value="2">US Dollar</option>
+                            <option value="3">Euro</option>
+                            <option value="4">British Pound</option>
+                            <option value="5">UAE Dirham</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Cost Price</label>
+                        <input type="number" id="productCostPrice" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Selling Price</label>
+                        <input type="number" id="productSellingPrice" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Minimum Stock</label>
+                        <input type="number" id="productMinStock" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Maximum Stock</label>
+                        <input type="number" id="productMaxStock" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Reorder Level</label>
+                        <input type="number" id="productReorderLevel" class="form-control" />
+                    </div>
+                    <div class="col-md-12">
+                        <label>Description</label>
+                        <textarea id="productDescription" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-primary" onclick="saveProduct()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div class="modal fade" id="deleteProductModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this product?</p>
+                <input type="hidden" id="deleteProductID" />
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-danger" onclick="confirmDeleteProduct()">Delete</button>
+            </div>
+        </div>
+    </div>
 </div>

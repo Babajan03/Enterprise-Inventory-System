@@ -280,3 +280,297 @@ BEGIN
     JOIN master.Product p ON i.ProductId = p.ProductID
     ORDER BY w.WarehouseName, p.ProductName;
 END
+
+
+CREATE OR ALTER PROCEDURE inventory.SP_Adjust_Inventory
+    @InventoryId INT,
+    @Quantity DECIMAL(18,2),
+    @Remarks VARCHAR(200)
+AS
+BEGIN
+    UPDATE inventory.Inventory
+    SET Quantity = @Quantity,
+        LastUpdatedDate = GETDATE(),
+        ModifiedDate = GETDATE(),
+        ModifiedBy = 'system'
+    WHERE InventoryId = @InventoryId;
+
+    INSERT INTO inventory.InventoryTransaction
+        (InventoryId, TransactionType, Quantity,
+         TransactionDate, Remarks, CreatedBy)
+    VALUES
+        (@InventoryId, 'ADJUSTMENT', @Quantity,
+         GETDATE(), @Remarks, 'system');
+END
+
+
+CREATE PROCEDURE purchase.SP_Get_All_Purchase_Orders
+AS
+BEGIN
+    SELECT h.PurchaseOrderID, h.PurchaseOrderNumber,
+           h.SupplierID, s.SupplierName,
+           h.OrderDate, h.ExpectedDeliveryDate,
+           h.TotalAmount, h.Status, h.Remarks, h.IsActive
+    FROM purchase.PurchaseOrderHeader h
+    JOIN master.Supplier s ON h.SupplierID = s.SupplierID
+    ORDER BY h.OrderDate DESC;
+END
+
+
+CREATE PROCEDURE purchase.SP_Get_Purchase_Order_By_Id
+    @PurchaseOrderID INT
+AS
+BEGIN
+    SELECT h.PurchaseOrderID, h.PurchaseOrderNumber,
+           h.SupplierID, s.SupplierName,
+           h.OrderDate, h.ExpectedDeliveryDate,
+           h.TotalAmount, h.Status, h.Remarks
+    FROM purchase.PurchaseOrderHeader h
+    JOIN master.Supplier s ON h.SupplierID = s.SupplierID
+    WHERE h.PurchaseOrderID = @PurchaseOrderID;
+END
+
+
+CREATE PROCEDURE purchase.SP_Get_Purchase_Order_Items
+    @PurchaseOrderID INT
+AS
+BEGIN
+    SELECT d.PurchaseOrderDetailID, d.PurchaseOrderID,
+           d.ProductID, p.ProductName, p.ProductCode,
+           d.OrderedQuantity, d.UnitPrice,
+           d.DiscountAmount, d.TaxAmount, d.LineTotal,
+           d.ReceivedQuantity, d.Remarks
+    FROM purchase.PurchaseOrderDetail d
+    JOIN master.Product p ON d.ProductID = p.ProductID
+    WHERE d.PurchaseOrderID = @PurchaseOrderID;
+END
+
+CREATE OR ALTER PROCEDURE purchase.SP_Create_Purchase_Order
+    @PurchaseOrderNumber VARCHAR(50),
+    @SupplierID INT,
+    @OrderDate DATE,
+    @ExpectedDeliveryDate DATE,
+    @Remarks NVARCHAR(500)
+AS
+BEGIN
+    INSERT INTO purchase.PurchaseOrderHeader
+        (PurchaseOrderNumber, SupplierID, OrderDate,
+         ExpectedDeliveryDate, TotalAmount, Status,
+         Remarks, IsActive, CreatedDate, CreatedBy)
+    VALUES
+        (@PurchaseOrderNumber, @SupplierID, @OrderDate,
+         @ExpectedDeliveryDate, 0, 'Draft',
+         @Remarks, 1, GETDATE(), 'system');
+
+    SELECT SCOPE_IDENTITY() AS PurchaseOrderID;
+END
+
+
+CREATE OR ALTER PROCEDURE purchase.SP_Add_Purchase_Order_Item
+    @PurchaseOrderID INT,
+    @ProductID INT,
+    @OrderedQuantity DECIMAL(18,2),
+    @UnitPrice DECIMAL(18,2),
+    @DiscountAmount DECIMAL(18,2),
+    @TaxAmount DECIMAL(18,2)
+AS
+BEGIN
+    DECLARE @LineTotal DECIMAL(18,2);
+    SET @LineTotal = (@OrderedQuantity * @UnitPrice) - @DiscountAmount + @TaxAmount;
+
+    INSERT INTO purchase.PurchaseOrderDetail
+        (PurchaseOrderID, ProductID, OrderedQuantity, UnitPrice,
+         DiscountAmount, TaxAmount, LineTotal,
+         ReceivedQuantity, CreatedDate, CreatedBy)
+    VALUES
+        (@PurchaseOrderID, @ProductID, @OrderedQuantity, @UnitPrice,
+         @DiscountAmount, @TaxAmount, @LineTotal,
+         0, GETDATE(), 'system');
+
+    UPDATE purchase.PurchaseOrderHeader
+    SET TotalAmount = (
+        SELECT SUM(LineTotal) FROM purchase.PurchaseOrderDetail
+        WHERE PurchaseOrderID = @PurchaseOrderID
+    )
+    WHERE PurchaseOrderID = @PurchaseOrderID;
+END
+
+CREATE PROCEDURE purchase.SP_Update_Purchase_Order_Status
+    @PurchaseOrderID INT,
+    @Status VARCHAR(50)
+AS
+BEGIN
+    UPDATE purchase.PurchaseOrderHeader
+    SET Status = @Status,
+        ModifiedDate = GETDATE(),
+        ModifiedBy = 'system'
+    WHERE PurchaseOrderID = @PurchaseOrderID;
+END
+
+
+SELECT COUNT(*) FROM sales.Customer;
+
+
+SELECT TABLE_SCHEMA, TABLE_NAME
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_NAME LIKE '%Sales%'
+ORDER BY TABLE_SCHEMA, TABLE_NAME;
+
+SELECT TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, DATA_TYPE
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME IN ('SalesOrderHeader', 'SalesOrderDetail')
+ORDER BY TABLE_SCHEMA, TABLE_NAME, ORDINAL_POSITION;
+
+
+CREATE PROCEDURE sales.SP_Get_All_Sales_Orders
+AS
+BEGIN
+    SELECT h.SalesOrderId, h.OrderNumber, h.CustomerId,
+           c.CustomerName, h.OrderDate, h.OrderStatus,
+           h.TotalAmount, h.CreatedDate
+    FROM sales.SalesOrderHeader h
+    JOIN sales.Customer c ON h.CustomerId = c.CustomerId
+    ORDER BY h.OrderDate DESC;
+END
+
+
+CREATE PROCEDURE sales.SP_Get_Sales_Order_By_Id
+    @SalesOrderId INT
+AS
+BEGIN
+    SELECT h.SalesOrderId, h.OrderNumber, h.CustomerId,
+           c.CustomerName, h.OrderDate, h.OrderStatus,
+           h.TotalAmount
+    FROM sales.SalesOrderHeader h
+    JOIN sales.Customer c ON h.CustomerId = c.CustomerId
+    WHERE h.SalesOrderId = @SalesOrderId;
+END
+
+
+
+CREATE PROCEDURE sales.SP_Get_Sales_Order_Items
+    @SalesOrderId INT
+AS
+BEGIN
+    SELECT d.SalesOrderDetailId, d.SalesOrderId,
+           d.ProductId, p.ProductName, p.ProductCode,
+           d.Quantity, d.UnitPrice, d.TotalPrice
+    FROM sales.SalesOrderDetail d
+    JOIN master.Product p ON d.ProductId = p.ProductID
+    WHERE d.SalesOrderId = @SalesOrderId;
+END
+
+
+
+CREATE OR ALTER PROCEDURE sales.SP_Create_Sales_Order
+    @OrderNumber VARCHAR(50),
+    @CustomerId INT,
+    @OrderDate DATETIME2,
+    @OrderStatus VARCHAR(50)
+AS
+BEGIN
+    INSERT INTO sales.SalesOrderHeader
+        (OrderNumber, CustomerId, OrderDate, OrderStatus,
+         TotalAmount, CreatedDate, CreatedBy)
+    VALUES
+        (@OrderNumber, @CustomerId, @OrderDate, @OrderStatus,
+         0, GETDATE(), 'system');
+
+    SELECT SCOPE_IDENTITY() AS SalesOrderId;
+END
+
+
+CREATE OR ALTER PROCEDURE sales.SP_Add_Sales_Order_Item
+    @SalesOrderId INT,
+    @ProductId INT,
+    @Quantity DECIMAL(18,2),
+    @UnitPrice DECIMAL(18,2)
+AS
+BEGIN
+    INSERT INTO sales.SalesOrderDetail
+        (SalesOrderId, ProductId, Quantity, UnitPrice,
+         CreatedDate, CreatedBy)
+    VALUES
+        (@SalesOrderId, @ProductId, @Quantity, @UnitPrice,
+         GETDATE(), 'system');
+
+    UPDATE sales.SalesOrderHeader
+    SET TotalAmount = (
+        SELECT SUM(Quantity * UnitPrice) FROM sales.SalesOrderDetail
+        WHERE SalesOrderId = @SalesOrderId
+    )
+    WHERE SalesOrderId = @SalesOrderId;
+END
+
+
+CREATE PROCEDURE sales.SP_Update_Sales_Order_Status
+    @SalesOrderId INT,
+    @OrderStatus VARCHAR(50)
+AS
+BEGIN
+    UPDATE sales.SalesOrderHeader
+    SET OrderStatus = @OrderStatus
+    WHERE SalesOrderId = @SalesOrderId;
+END
+
+
+CREATE PROCEDURE report.SP_Inventory_Summary
+AS
+BEGIN
+    SELECT p.ProductCode, p.ProductName,
+           w.WarehouseName,
+           i.Quantity, i.ReorderLevel,
+           CASE WHEN i.Quantity <= i.ReorderLevel
+                THEN 'Low Stock' ELSE 'OK' END AS StockStatus
+    FROM inventory.Inventory i
+    JOIN master.Product p ON i.ProductId = p.ProductID
+    JOIN inventory.Warehouse w ON i.WarehouseId = w.WarehouseId
+    ORDER BY StockStatus DESC, p.ProductName;
+END
+
+
+CREATE PROCEDURE report.SP_Sales_Summary
+AS
+BEGIN
+    SELECT c.CustomerName,
+           COUNT(h.SalesOrderId) AS TotalOrders,
+           SUM(h.TotalAmount) AS TotalRevenue
+    FROM sales.SalesOrderHeader h
+    JOIN sales.Customer c ON h.CustomerId = c.CustomerId
+    GROUP BY c.CustomerName
+    ORDER BY TotalRevenue DESC;
+END
+
+
+CREATE PROCEDURE report.SP_Purchase_Summary
+AS
+BEGIN
+    SELECT s.SupplierName,
+           COUNT(h.PurchaseOrderID) AS TotalOrders,
+           SUM(h.TotalAmount) AS TotalSpend
+    FROM purchase.PurchaseOrderHeader h
+    JOIN master.Supplier s ON h.SupplierID = s.SupplierID
+    GROUP BY s.SupplierName
+    ORDER BY TotalSpend DESC;
+END
+
+
+
+SELECT ROUTINE_SCHEMA, ROUTINE_NAME
+FROM INFORMATION_SCHEMA.ROUTINES
+WHERE ROUTINE_TYPE = 'PROCEDURE'
+AND ROUTINE_NAME LIKE 'SP_%Sales%'
+   OR ROUTINE_NAME LIKE 'SP_%Inventory_Summary%'
+   OR ROUTINE_NAME LIKE 'SP_%Purchase_Summary%'
+ORDER BY ROUTINE_SCHEMA, ROUTINE_NAME;
+
+
+SELECT 'Category' AS TableName, CategoryID AS ID, CategoryName AS Name FROM master.Category WHERE IsActive = 1
+UNION ALL
+SELECT 'Brand', BrandID, BrandName FROM master.Brand WHERE IsActive = 1
+UNION ALL
+SELECT 'Unit', UnitID, UnitName FROM master.Unit WHERE IsActive = 1
+UNION ALL
+SELECT 'Tax', TaxID, TaxName FROM master.Tax WHERE IsActive = 1
+UNION ALL
+SELECT 'Currency', CurrencyID, CurrencyName FROM master.Currency WHERE IsActive = 1;

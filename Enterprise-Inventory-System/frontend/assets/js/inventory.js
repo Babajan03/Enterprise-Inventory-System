@@ -1,9 +1,8 @@
 let inventoryTable;
 
 async function loadInventory() {
-    await new Promise(r => setTimeout(r, 50));
     if ($.fn.DataTable.isDataTable("#inventoryTable")) {
-        inventoryTable.destroy();
+        $("#inventoryTable").DataTable().destroy();
     }
     const data = await api.get("/inventory/");
     inventoryTable = $("#inventoryTable").DataTable({
@@ -23,7 +22,7 @@ async function loadInventory() {
                 data: null,
                 render: row => `
                     <button class="btn btn-warning btn-sm"
-                        onclick="openAdjust(${row.InventoryId}, '${row.ProductName}', ${row.Quantity})">
+                        onclick="window.openAdjust(${row.InventoryId}, '${row.ProductName}', ${row.Quantity})">
                         Adjust
                     </button>
                 `
@@ -32,15 +31,15 @@ async function loadInventory() {
     });
 }
 
-function openAdjust(id, productName, currentQty) {
+window.openAdjust = function(id, productName, currentQty) {
     document.getElementById("adjustInventoryID").value = id;
     document.getElementById("adjustProductName").value = productName;
     document.getElementById("adjustQuantity").value = currentQty;
     document.getElementById("adjustRemarks").value = "";
     new bootstrap.Modal(document.getElementById("adjustModal")).show();
-}
+};
 
-async function saveAdjustment() {
+window.saveAdjustment = async function() {
     const id = document.getElementById("adjustInventoryID").value;
     const payload = {
         Quantity: document.getElementById("adjustQuantity").value,
@@ -49,4 +48,8 @@ async function saveAdjustment() {
     await api.put(`/inventory/${id}/adjust`, payload);
     bootstrap.Modal.getInstance(document.getElementById("adjustModal")).hide();
     loadInventory();
-}
+};
+
+
+window.openAdjust = openAdjust;
+window.saveAdjustment = saveAdjustment;

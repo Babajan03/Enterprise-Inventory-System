@@ -1,0 +1,31 @@
+<div class="mb-4">
+    <h4>Reports</h4>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="showReport('inventory')">
+                <i class="bi bi-archive"></i> Inventory Report
+            </button>
+            <button class="btn btn-success" onclick="showReport('sales')">
+                <i class="bi bi-graph-up"></i> Sales Report
+            </button>
+            <button class="btn btn-warning" onclick="showReport('purchase')">
+                <i class="bi bi-cart"></i> Purchase Report
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body table-responsive">
+        <div id="reportTitle" class="mb-3 fw-bold fs-5">
+            Click a report button above to load data
+        </div>
+        <table id="reportTable" class="table table-striped" style="width:100%">
+            <thead id="reportHead"></thead>
+            <tbody id="reportBody"></tbody>
+        </table>
+    </div>
+</div>

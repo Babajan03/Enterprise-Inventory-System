@@ -1,17 +1,45 @@
-<nav class="navbar bg-white shadow-sm rounded-3 px-4">
+<nav class="navbar bg-white shadow-sm rounded-3 px-4 d-flex justify-content-between align-items-center">
+    <h4 class="m-0">Enterprise Inventory Management System</h4>
 
-<h4 class="m-0">
+    <div class="d-flex align-items-center gap-3">
 
-Enterprise Inventory Management System
+        <!-- Bell with dropdown -->
+        <div class="dropdown">
+            <button class="btn btn-light position-relative" id="bellBtn" 
+                data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-bell fs-5"></i>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
+                    id="notifBadge" style="display:none;">0</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow" style="width:320px;" id="notifList">
+                <li class="dropdown-header fw-bold px-3 py-2 border-bottom">Notifications</li>
+                <li class="px-3 py-2 text-muted small" id="notifEmpty">No notifications</li>
+            </ul>
+        </div>
 
-</h4>
-
-<div>
-
-<i class="bi bi-bell fs-5 me-3"></i>
-
-<i class="bi bi-person-circle fs-3"></i>
-
-</div>
-
-</nav>
+        <!-- Profile dropdown -->
+        <div class="dropdown">
+            <button class="btn btn-light d-flex align-items-center gap-2" 
+                data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-person-circle fs-4"></i>
+                <span id="navUsername" class="fw-semibold small"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow">
+                <li class="px-3 py-2 border-bottom">
+                    <div class="fw-bold" id="navFullName"></div>
+                    <div class="text-muted small" id="navRole"></div>
+                </li>
+                <li>
+                    <a class="dropdown-item py-2" onclick="showProfile()">
+                        <i class="bi bi-person me-2"></i> My Profile
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item py-2" onclick="showChangePassword()">
+                        <i class="bi bi-key me-2"></i> Change Password
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item py-2 text-danger" onclick="logout()">
+                        <i class="bi bi-box-arrow-left

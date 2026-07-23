@@ -1,18 +1,33 @@
 from flask_restx import Namespace, Resource
 from database import get_conn
-ns=Namespace("dashboard")
+
+ns = Namespace("dashboard")
+
+
 @ns.route("/health")
 class Health(Resource):
     def get(self):
-        return {"success":True,"message":"API Running"}
+        return {"success": True, "message": "API Running"}
+
+
 @ns.route("/summary")
 class Summary(Resource):
     def get(self):
-        c=get_conn().cursor()
-        q=lambda s:c.execute(s).fetchval()
-        return {
-          "products":q("select count(*) from master.Product"),
-          "suppliers":q("select count(*) from purchase.Supplier"),
-          "customers":q("select count(*) from sales.Customer"),
-          "warehouses":q("select count(*) from inventory.Warehouse")
+        conn = get_conn()
+        cursor = conn.cursor()
+
+        def q(sql):
+            cursor.execute(sql)
+            return cursor.fetchone()[0]
+
+        result = {
+            "products": q("SELECT COUNT(*) FROM master.Product"),
+            "suppliers": q("SELECT COUNT(*) FROM master.Supplier"),
+            "customers": q("SELECT COUNT(*) FROM sales.Customer"),
+            "warehouses": q("SELECT COUNT(*) FROM inventory.Warehouse")
         }
+
+        cursor.close()
+        conn.close()
+
+        return result

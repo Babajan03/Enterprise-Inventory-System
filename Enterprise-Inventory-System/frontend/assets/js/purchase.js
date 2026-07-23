@@ -2,9 +2,8 @@ let purchaseTable;
 let currentOrderId = null;
 
 async function loadPurchase() {
-    await new Promise(r => setTimeout(r, 50));
     if ($.fn.DataTable.isDataTable("#purchaseTable")) {
-        purchaseTable.destroy();
+        $("#purchaseTable").DataTable().destroy();
     }
     const data = await api.get("/purchase/");
     purchaseTable = $("#purchaseTable").DataTable({
@@ -33,11 +32,11 @@ async function loadPurchase() {
                 data: null,
                 render: row => `
                     <button class="btn btn-info btn-sm"
-                        onclick="viewItems(${row.PurchaseOrderID}, '${row.PurchaseOrderNumber}')">
+                        onclick="window.viewItems(${row.PurchaseOrderID}, '${row.PurchaseOrderNumber}')">
                         Items
                     </button>
                     <button class="btn btn-success btn-sm ms-1"
-                        onclick="updateStatus(${row.PurchaseOrderID}, 'Approved')">
+                        onclick="window.updateStatus(${row.PurchaseOrderID}, 'Approved')">
                         Approve
                     </button>
                 `
@@ -46,7 +45,7 @@ async function loadPurchase() {
     });
 }
 
-async function openCreateOrder() {
+window.openCreateOrder = async function() {
     const suppliers = await api.get("/suppliers/");
     const select = document.getElementById("poSupplier");
     select.innerHTML = suppliers.map(s =>
@@ -58,9 +57,9 @@ async function openCreateOrder() {
     document.getElementById("poNumber").value = "PO-" + Date.now();
     document.getElementById("poRemarks").value = "";
     new bootstrap.Modal(document.getElementById("purchaseModal")).show();
-}
+};
 
-async function savePurchaseOrder() {
+window.savePurchaseOrder = async function() {
     const payload = {
         PurchaseOrderNumber: document.getElementById("poNumber").value,
         SupplierID: document.getElementById("poSupplier").value,
@@ -72,11 +71,11 @@ async function savePurchaseOrder() {
     bootstrap.Modal.getInstance(document.getElementById("purchaseModal")).hide();
     loadPurchase();
     if (result.PurchaseOrderID) {
-        setTimeout(() => viewItems(result.PurchaseOrderID, payload.PurchaseOrderNumber), 500);
+        setTimeout(() => window.viewItems(result.PurchaseOrderID, payload.PurchaseOrderNumber), 500);
     }
-}
+};
 
-async function viewItems(orderId, orderNumber) {
+window.viewItems = async function(orderId, orderNumber) {
     currentOrderId = orderId;
     document.getElementById("itemsModalTitle").textContent = "Items - " + orderNumber;
     const products = await api.get("/products/");
@@ -87,7 +86,7 @@ async function viewItems(orderId, orderNumber) {
     const items = await api.get(`/purchase/${orderId}/items`);
     renderItemsTable(items);
     new bootstrap.Modal(document.getElementById("itemsModal")).show();
-}
+};
 
 function renderItemsTable(items) {
     const tbody = document.getElementById("itemsTableBody");
@@ -105,7 +104,7 @@ function renderItemsTable(items) {
         `).join("");
 }
 
-async function addOrderItem() {
+window.addOrderItem = async function() {
     const payload = {
         ProductID: document.getElementById("itemProduct").value,
         OrderedQuantity: document.getElementById("itemQty").value,
@@ -116,10 +115,18 @@ async function addOrderItem() {
     await api.post(`/purchase/${currentOrderId}/items`, payload);
     const items = await api.get(`/purchase/${currentOrderId}/items`);
     renderItemsTable(items);
-}
+};
 
-async function updateStatus(orderId, status) {
+window.updateStatus = async function(orderId, status) {
     if (!confirm(`Mark this order as ${status}?`)) return;
     await api.put(`/purchase/${orderId}/status`, { Status: status });
     loadPurchase();
-}
+};
+
+
+
+window.openCreateOrder = openCreateOrder;
+window.savePurchaseOrder = savePurchaseOrder;
+window.viewItems = viewItems;
+window.addOrderItem = addOrderItem;
+window.updateStatus = updateStatus;

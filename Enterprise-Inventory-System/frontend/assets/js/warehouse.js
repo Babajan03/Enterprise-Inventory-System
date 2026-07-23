@@ -1,9 +1,8 @@
 let warehouseTable;
 
 async function loadWarehouse() {
-    await new Promise(r => setTimeout(r, 50));
     if ($.fn.DataTable.isDataTable("#warehouseTable")) {
-        warehouseTable.destroy();
+        $("#warehouseTable").DataTable().destroy();
     }
     const data = await api.get("/warehouse/");
     warehouseTable = $("#warehouseTable").DataTable({
@@ -27,16 +26,16 @@ async function loadWarehouse() {
                 data: null,
                 render: row => `
                     <button class="btn btn-warning btn-sm"
-                        onclick="editWarehouse(${row.WarehouseId})">Edit</button>
+                        onclick="window.editWarehouse(${row.WarehouseId})">Edit</button>
                     <button class="btn btn-danger btn-sm ms-1"
-                        onclick="deleteWarehouse(${row.WarehouseId})">Delete</button>
+                        onclick="window.deleteWarehouse(${row.WarehouseId})">Delete</button>
                 `
             }
         ]
     });
 }
 
-function openAddWarehouse() {
+window.openAddWarehouse = function() {
     document.getElementById("warehouseModalTitle").textContent = "Add Warehouse";
     ["warehouseID","warehouseCode","warehouseName","warehouseAddress",
      "warehouseCity","warehouseState","warehouseCountry","warehousePostalCode",
@@ -45,9 +44,9 @@ function openAddWarehouse() {
     });
     document.getElementById("warehouseIsActive").value = "1";
     new bootstrap.Modal(document.getElementById("warehouseModal")).show();
-}
+};
 
-async function editWarehouse(id) {
+window.editWarehouse = async function(id) {
     const w = await api.get(`/warehouse/${id}`);
     document.getElementById("warehouseModalTitle").textContent = "Edit Warehouse";
     document.getElementById("warehouseID").value = w.WarehouseId;
@@ -62,9 +61,9 @@ async function editWarehouse(id) {
     document.getElementById("warehouseContactNumber").value = w.ContactNumber;
     document.getElementById("warehouseIsActive").value = w.IsActive ? "1" : "0";
     new bootstrap.Modal(document.getElementById("warehouseModal")).show();
-}
+};
 
-async function saveWarehouse() {
+window.saveWarehouse = async function() {
     const id = document.getElementById("warehouseID").value;
     const payload = {
         WarehouseCode: document.getElementById("warehouseCode").value,
@@ -85,10 +84,15 @@ async function saveWarehouse() {
     }
     bootstrap.Modal.getInstance(document.getElementById("warehouseModal")).hide();
     loadWarehouse();
-}
+};
 
-async function deleteWarehouse(id) {
+window.deleteWarehouse = async function(id) {
     if (!confirm("Delete this warehouse?")) return;
     await api.delete(`/warehouse/${id}`);
     loadWarehouse();
-}
+};
+
+window.openAddWarehouse = openAddWarehouse;
+window.editWarehouse = editWarehouse;
+window.deleteWarehouse = deleteWarehouse;
+window.saveWarehouse = saveWarehouse;
