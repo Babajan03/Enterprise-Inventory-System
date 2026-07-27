@@ -1,7 +1,6 @@
 function initNavbar() {
     const user = JSON.parse(localStorage.getItem("authUser") || "{}");
 
-    // Set username in navbar
     const navUsername = document.getElementById("navUsername");
     const navFullName = document.getElementById("navFullName");
     const navRole = document.getElementById("navRole");
@@ -10,7 +9,6 @@ function initNavbar() {
     if (navFullName) navFullName.textContent = user.FullName || "";
     if (navRole) navRole.textContent = user.Role || "";
 
-    // Load notifications (low stock alerts)
     loadNotifications();
 }
 
@@ -24,8 +22,10 @@ async function loadNotifications() {
         const empty = document.getElementById("notifEmpty");
 
         if (lowStock.length > 0) {
-            badge.textContent = lowStock.length;
-            badge.style.display = "inline";
+            if (badge) {
+                badge.textContent = lowStock.length;
+                badge.style.display = "inline";
+            }
             if (empty) empty.style.display = "none";
 
             lowStock.forEach(item => {
@@ -42,10 +42,11 @@ async function loadNotifications() {
                         </div>
                     </div>
                 `;
-                list.appendChild(li);
+                if (list) list.appendChild(li);
             });
         } else {
-            badge.style.display = "none";
+            if (badge) badge.style.display = "none";
+            if (empty) empty.style.display = "block";
         }
     } catch (err) {
         console.error("Notification load error:", err);
@@ -54,29 +55,37 @@ async function loadNotifications() {
 
 window.showProfile = function() {
     const user = JSON.parse(localStorage.getItem("authUser") || "{}");
-    document.getElementById("profileFullName").textContent = user.FullName || "";
-    document.getElementById("profileUsername").textContent = user.Username || "";
-    document.getElementById("profileEmail").textContent = user.Email || "Not set";
-    document.getElementById("profileRole").textContent = user.Role || "";
-    document.getElementById("profileRoleDetail").textContent = user.Role || "";
-    new bootstrap.Modal(document.getElementById("profileModal")).show();
+    const el = id => document.getElementById(id);
+
+    if (el("profileFullName")) el("profileFullName").textContent = user.FullName || "";
+    if (el("profileUsername")) el("profileUsername").textContent = user.Username || "";
+    if (el("profileEmail")) el("profileEmail").textContent = user.Email || "Not set";
+    if (el("profileRole")) el("profileRole").textContent = user.Role || "";
+    if (el("profileRoleDetail")) el("profileRoleDetail").textContent = user.Role || "";
+
+    const modalEl = document.getElementById("profileModal");
+    if (modalEl) new bootstrap.Modal(modalEl).show();
 };
 
 window.showChangePassword = function() {
-    document.getElementById("currentPassword").value = "";
-    document.getElementById("newPassword").value = "";
-    document.getElementById("confirmPassword").value = "";
-    document.getElementById("passwordError").style.display = "none";
-    document.getElementById("passwordSuccess").style.display = "none";
-    new bootstrap.Modal(document.getElementById("changePasswordModal")).show();
+    const el = id => document.getElementById(id);
+    if (el("currentPassword")) el("currentPassword").value = "";
+    if (el("newPassword")) el("newPassword").value = "";
+    if (el("confirmPassword")) el("confirmPassword").value = "";
+    if (el("passwordError")) el("passwordError").style.display = "none";
+    if (el("passwordSuccess")) el("passwordSuccess").style.display = "none";
+
+    const modalEl = document.getElementById("changePasswordModal");
+    if (modalEl) new bootstrap.Modal(modalEl).show();
 };
 
 window.saveNewPassword = async function() {
-    const current = document.getElementById("currentPassword").value;
-    const newPass = document.getElementById("newPassword").value;
-    const confirm = document.getElementById("confirmPassword").value;
-    const errorBox = document.getElementById("passwordError");
-    const successBox = document.getElementById("passwordSuccess");
+    const el = id => document.getElementById(id);
+    const current = el("currentPassword").value;
+    const newPass = el("newPassword").value;
+    const confirm = el("confirmPassword").value;
+    const errorBox = el("passwordError");
+    const successBox = el("passwordSuccess");
 
     errorBox.style.display = "none";
     successBox.style.display = "none";
@@ -107,9 +116,10 @@ window.saveNewPassword = async function() {
         successBox.textContent = "Password changed successfully!";
         successBox.style.display = "block";
         setTimeout(() => {
-            bootstrap.Modal.getInstance(
-                document.getElementById("changePasswordModal")
-            ).hide();
+            const modalEl = document.getElementById("changePasswordModal");
+            if (modalEl) {
+                bootstrap.Modal.getInstance(modalEl).hide();
+            }
         }, 1500);
     } catch (err) {
         errorBox.textContent = err.message || "Failed to change password.";
