@@ -1,0 +1,163 @@
+<div class="mb-4 d-flex align-items-center justify-content-between">
+    <div>
+        <h4 class="mb-1"><i class="bi bi-people-fill me-2 text-primary"></i>User Management</h4>
+        <p class="text-muted mb-0">Manage system users, staff accounts, roles, and security permissions</p>
+    </div>
+    <button class="btn btn-primary" onclick="openAddUserModal()">
+        <i class="bi bi-person-plus-fill me-1"></i> Add New User
+    </button>
+</div>
+
+<!-- Summary Stats Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-lg-3 col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body d-flex align-items-center">
+                <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                    <i class="bi bi-people text-primary fs-4"></i>
+                </div>
+                <div>
+                    <small class="text-muted">Total Users</small>
+                    <h5 class="mb-0 fw-bold" id="userStatTotal">0</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body d-flex align-items-center">
+                <div class="rounded-circle bg-success bg-opacity-10 p-3 me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                    <i class="bi bi-check-circle text-success fs-4"></i>
+                </div>
+                <div>
+                    <small class="text-muted">Active Accounts</small>
+                    <h5 class="mb-0 fw-bold" id="userStatActive">0</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body d-flex align-items-center">
+                <div class="rounded-circle bg-purple bg-opacity-10 p-3 me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; background: rgba(111, 66, 193, 0.1);">
+                    <i class="bi bi-shield-lock text-purple fs-4" style="color: #6f42c1;"></i>
+                </div>
+                <div>
+                    <small class="text-muted">Admins</small>
+                    <h5 class="mb-0 fw-bold" id="userStatAdmin">0</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body d-flex align-items-center">
+                <div class="rounded-circle bg-info bg-opacity-10 p-3 me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                    <i class="bi bi-person-badge text-info fs-4"></i>
+                </div>
+                <div>
+                    <small class="text-muted">Staff / Managers</small>
+                    <h5 class="mb-0 fw-bold" id="userStatStaff">0</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Table Card -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white py-3 border-0">
+        <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-list-ul me-2"></i>System User Directory</h6>
+    </div>
+    <div class="card-body table-responsive">
+        <table id="usersTable" class="table table-hover align-middle" style="width:100%">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Created Date</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="usersBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add / Edit User Modal -->
+<div class="modal fade" id="userModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title fw-bold" id="userModalTitle">Add New User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="userForm" onsubmit="saveUser(event)">
+                <input type="hidden" id="userId" value="">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Username <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="userUsername" required placeholder="e.g. john_doe">
+                    </div>
+                    <div class="mb-3" id="passwordGroup">
+                        <label class="form-label fw-semibold">Password <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="userPassword" placeholder="Enter secure password">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="userFullName" required placeholder="e.g. John Doe">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Email Address</label>
+                        <input type="email" class="form-control" id="userEmail" placeholder="john@example.com">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Role <span class="text-danger">*</span></label>
+                        <select class="form-select" id="userRole" required>
+                            <option value="Staff">Staff</option>
+                            <option value="Manager">Manager</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="form-check form-switch mb-3" id="statusSwitchGroup" style="display:none;">
+                        <input class="form-check-input" type="checkbox" id="userIsActive" checked>
+                        <label class="form-check-label fw-semibold" for="userIsActive">Active Account</label>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary px-4" id="saveUserBtn">Save Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Reset Password Modal -->
+<div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-warning bg-opacity-10">
+                <h5 class="modal-title fw-bold text-dark"><i class="bi bi-key me-2"></i>Reset User Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="resetPasswordForm" onsubmit="submitResetPassword(event)">
+                <input type="hidden" id="resetUserId" value="">
+                <div class="modal-body">
+                    <p class="text-muted small">Reset password for <strong id="resetTargetUsername">User</strong>. The user will be required to use this new password upon next login.</p>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">New Password <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="resetNewPassword" required minlength="6" placeholder="Minimum 6 characters">
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning fw-semibold px-4">Reset Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

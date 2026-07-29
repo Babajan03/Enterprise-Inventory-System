@@ -1,29 +1,77 @@
 <div class="mb-4">
-    <h4>Reports</h4>
+    <h4><i class="bi bi-file-earmark-bar-graph me-2"></i>Reports & Analytics</h4>
+    <p class="text-muted mb-0">Comprehensive business insights and data analysis</p>
 </div>
 
-<div class="row mb-3">
-    <div class="col-md-12">
-        <div class="btn-group">
-            <button class="btn btn-primary" onclick="showReport('inventory')">
-                <i class="bi bi-archive"></i> Inventory Report
-            </button>
-            <button class="btn btn-success" onclick="showReport('sales')">
-                <i class="bi bi-graph-up"></i> Sales Report
-            </button>
-            <button class="btn btn-warning" onclick="showReport('purchase')">
-                <i class="bi bi-cart"></i> Purchase Report
-            </button>
+<!-- Report Navigation Tabs -->
+<ul class="nav nav-pills report-tabs mb-4" id="reportTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" data-report="inventory" onclick="showReport('inventory')">
+            <i class="bi bi-archive me-1"></i> Inventory
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" data-report="sales" onclick="showReport('sales')">
+            <i class="bi bi-receipt me-1"></i> Sales
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" data-report="purchase" onclick="showReport('purchase')">
+            <i class="bi bi-cart me-1"></i> Purchase
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" data-report="monthly-sales" onclick="showReport('monthly-sales')">
+            <i class="bi bi-graph-up me-1"></i> Monthly Trends
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" data-report="top-products" onclick="showReport('top-products')">
+            <i class="bi bi-trophy me-1"></i> Top Products
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" data-report="category-sales" onclick="showReport('category-sales')">
+            <i class="bi bi-pie-chart me-1"></i> Category Sales
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" data-report="low-stock" onclick="showReport('low-stock')">
+            <i class="bi bi-exclamation-triangle me-1"></i> Low Stock
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" data-report="product-movement" onclick="showReport('product-movement')">
+            <i class="bi bi-arrow-left-right me-1"></i> Movement
+        </button>
+    </li>
+</ul>
+
+<!-- Chart Area (shown only for visual reports) -->
+<div class="card mb-4" id="chartCard" style="display:none;">
+    <div class="card-header bg-white border-0 pt-3">
+        <h6 class="mb-0 fw-semibold" id="chartTitle"></h6>
+    </div>
+    <div class="card-body">
+        <div class="chart-container" style="position:relative; height:350px;">
+            <canvas id="reportChart"></canvas>
         </div>
     </div>
 </div>
 
+<!-- Summary Cards (shown for some reports) -->
+<div class="row g-3 mb-4" id="summaryCards" style="display:none;"></div>
+
+<!-- Data Table -->
 <div class="card">
+    <div class="card-header bg-white border-0 d-flex align-items-center justify-content-between pt-3">
+        <h6 class="mb-0 fw-semibold" id="reportTitle">
+            <i class="bi bi-table me-1"></i> Select a report above to view data
+        </h6>
+        <span class="badge bg-primary" id="reportCount" style="display:none;"></span>
+    </div>
     <div class="card-body table-responsive">
-        <div id="reportTitle" class="mb-3 fw-bold fs-5">
-            Click a report button above to load data
-        </div>
-        <table id="reportTable" class="table table-striped" style="width:100%">
+        <table id="reportTable" class="table table-striped table-hover" style="width:100%">
             <thead id="reportHead"></thead>
             <tbody id="reportBody"></tbody>
         </table>

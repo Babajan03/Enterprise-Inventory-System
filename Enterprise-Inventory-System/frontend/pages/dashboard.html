@@ -1,59 +1,185 @@
+<!-- Top Welcome Header & Quick Action Bar -->
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h4 class="mb-1 fw-bold"><i class="bi bi-speedometer2 text-primary me-2"></i>Executive Inventory Dashboard</h4>
+        <p class="text-muted mb-0">Real-time overview of sales, stock valuation, orders, and operational alerts</p>
+    </div>
+    <div class="d-flex gap-2">
+        <button class="btn btn-outline-primary btn-sm" onclick="loadPage('sales')">
+            <i class="bi bi-plus-circle me-1"></i> New Sales Order
+        </button>
+        <button class="btn btn-outline-success btn-sm" onclick="loadPage('purchase')">
+            <i class="bi bi-cart-plus me-1"></i> New Purchase Order
+        </button>
+        <button class="btn btn-primary btn-sm" onclick="loadPage('reports')">
+            <i class="bi bi-graph-up me-1"></i> View Analytics
+        </button>
+    </div>
+</div>
+
+<!-- Primary KPI Cards Row (4 Column Grid) -->
+<div class="row g-3 mb-4">
+    <!-- Card 1: Total Products & Value -->
+    <div class="col-lg-3 col-md-6">
+        <div class="card border-0 shadow-sm h-100 position-relative overflow-hidden">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <small class="text-muted fw-semibold uppercase">Total Products</small>
+                        <h3 class="mb-0 fw-bold text-dark" id="dashProductsCount">0</h3>
+                    </div>
+                    <div class="rounded-3 bg-primary bg-opacity-10 p-2 text-primary">
+                        <i class="bi bi-box-seam fs-3"></i>
+                    </div>
+                </div>
+                <div class="border-top pt-2 mt-2 d-flex justify-content-between text-muted small">
+                    <span>Inventory Value:</span>
+                    <strong class="text-dark" id="dashInventoryValue">₹ 0.00</strong>
+                </div>
+            </div>
+            <div class="position-absolute bottom-0 start-0 end-0 bg-primary" style="height: 3px;"></div>
+        </div>
+    </div>
+
+    <!-- Card 2: Total Sales Revenue -->
+    <div class="col-lg-3 col-md-6">
+        <div class="card border-0 shadow-sm h-100 position-relative overflow-hidden">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <small class="text-muted fw-semibold uppercase">Total Sales Revenue</small>
+                        <h3 class="mb-0 fw-bold text-success" id="dashSalesRevenue">₹ 0.00</h3>
+                    </div>
+                    <div class="rounded-3 bg-success bg-opacity-10 p-2 text-success">
+                        <i class="bi bi-currency-rupee fs-3"></i>
+                    </div>
+                </div>
+                <div class="border-top pt-2 mt-2 d-flex justify-content-between text-muted small">
+                    <span>Total Customers:</span>
+                    <strong class="text-dark" id="dashCustomersCount">0</strong>
+                </div>
+            </div>
+            <div class="position-absolute bottom-0 start-0 end-0 bg-success" style="height: 3px;"></div>
+        </div>
+    </div>
+
+    <!-- Card 3: Purchase Spend -->
+    <div class="col-lg-3 col-md-6">
+        <div class="card border-0 shadow-sm h-100 position-relative overflow-hidden">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <small class="text-muted fw-semibold uppercase">Total Purchase Spend</small>
+                        <h3 class="mb-0 fw-bold text-info" id="dashPurchaseSpend">₹ 0.00</h3>
+                    </div>
+                    <div class="rounded-3 bg-info bg-opacity-10 p-2 text-info">
+                        <i class="bi bi-cart-check fs-3"></i>
+                    </div>
+                </div>
+                <div class="border-top pt-2 mt-2 d-flex justify-content-between text-muted small">
+                    <span>Suppliers:</span>
+                    <strong class="text-dark" id="dashSuppliersCount">0</strong>
+                </div>
+            </div>
+            <div class="position-absolute bottom-0 start-0 end-0 bg-info" style="height: 3px;"></div>
+        </div>
+    </div>
+
+    <!-- Card 4: Low Stock Alert -->
+    <div class="col-lg-3 col-md-6">
+        <div class="card border-0 shadow-sm h-100 position-relative overflow-hidden">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <small class="text-muted fw-semibold uppercase">Low Stock Alerts</small>
+                        <h3 class="mb-0 fw-bold text-danger" id="dashLowStockCount">0</h3>
+                    </div>
+                    <div class="rounded-3 bg-danger bg-opacity-10 p-2 text-danger">
+                        <i class="bi bi-exclamation-triangle fs-3"></i>
+                    </div>
+                </div>
+                <div class="border-top pt-2 mt-2 d-flex justify-content-between text-muted small">
+                    <span>Warehouses:</span>
+                    <strong class="text-dark" id="dashWarehousesCount">0</strong>
+                </div>
+            </div>
+            <div class="position-absolute bottom-0 start-0 end-0 bg-danger" style="height: 3px;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row (Trends & Stock Distribution) -->
+<div class="row g-4 mb-4">
+    <!-- Left: 6 Month Revenue vs Spend Trend -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3 border-0 d-flex align-items-center justify-content-between">
+                <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-graph-up-arrow me-2 text-primary"></i>Revenue vs Purchase Spend Trend</h6>
+                <small class="text-muted">Last 6 Months</small>
+            </div>
+            <div class="card-body">
+                <div style="position: relative; height: 300px;">
+                    <canvas id="dashTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: Stock Health Distribution -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3 border-0">
+                <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-pie-chart me-2 text-primary"></i>Inventory Stock Health</h6>
+            </div>
+            <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                <div style="position: relative; width: 100%; height: 240px;">
+                    <canvas id="dashStockChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Row (Recent Sales & Low Stock Widget) -->
 <div class="row g-4">
+    <!-- Recent Sales Orders -->
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3 border-0 d-flex align-items-center justify-content-between">
+                <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-receipt me-2 text-success"></i>Recent Sales Orders</h6>
+                <a onclick="loadPage('sales')" class="text-primary text-decoration-none small fw-semibold cursor-pointer">View All <i class="bi bi-arrow-right"></i></a>
+            </div>
+            <div class="card-body p-0 table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr class="small text-muted">
+                            <th class="ps-3">Order #</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th class="pe-3">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashRecentSalesBody">
+                        <tr><td colspan="5" class="text-center text-muted py-3">Loading recent sales...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-<div class="col-lg-3">
-
-<div class="card dashboard-card">
-
-<h6>Total Products</h6>
-
-<h2 id="products">0</h2>
-
-</div>
-
-</div>
-
-<div class="col-lg-3">
-
-<div class="card dashboard-card">
-
-<h6>Suppliers</h6>
-
-<h2 id="suppliers">0</h2>
-
-</div>
-
-</div>
-
-<div class="col-lg-3">
-
-<div class="card dashboard-card">
-
-<h6>Customers</h6>
-
-<h2 id="customers">0</h2>
-
-</div>
-
-</div>
-
-<div class="col-lg-3">
-
-<div class="card dashboard-card">
-
-<h6>Warehouses</h6>
-
-<h2 id="warehouses">0</h2>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="card mt-4 p-4">
-
-<h4>Welcome to Enterprise Inventory Management System</h4>
-
-<p>Select a module from the left menu.</p>
-
+    <!-- Urgent Low Stock Alerts -->
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3 border-0 d-flex align-items-center justify-content-between">
+                <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-exclamation-circle me-2 text-danger"></i>Low Stock Alerts</h6>
+                <a onclick="loadPage('reports')" class="text-danger text-decoration-none small fw-semibold cursor-pointer">All Alerts <i class="bi bi-arrow-right"></i></a>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush" id="dashUrgentStockList">
+                    <li class="list-group-item text-center text-muted py-3">Loading low stock alerts...</li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>

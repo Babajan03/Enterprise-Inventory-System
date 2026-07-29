@@ -1,8 +1,25 @@
 async function handleLogin(event) {
-    event.preventDefault();
+    if (event) event.preventDefault();
 
-    const username = document.getElementById("username").value;
+    const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value;
+    const errorBox = document.getElementById("loginError");
+    const loginBtn = document.getElementById("loginBtn");
+    const loginText = document.getElementById("loginText");
+    const loginSpinner = document.getElementById("loginSpinner");
+
+    errorBox.style.display = "none";
+
+    if (!username || !password) {
+        errorBox.textContent = "Please enter both username and password.";
+        errorBox.style.display = "block";
+        return;
+    }
+
+    // Show spinner
+    loginBtn.disabled = true;
+    loginText.style.display = "none";
+    loginSpinner.style.display = "inline";
 
     try {
         const result = await api.post("/auth/login", {
@@ -16,9 +33,13 @@ async function handleLogin(event) {
         window.location.href = "index.html";
 
     } catch (err) {
-        const errorBox = document.getElementById("loginError");
-        errorBox.textContent = err.message || "Login failed";
+        errorBox.textContent = err.message || "Invalid username or password.";
         errorBox.style.display = "block";
+
+        // Reset button
+        loginBtn.disabled = false;
+        loginText.style.display = "inline";
+        loginSpinner.style.display = "none";
     }
 }
 

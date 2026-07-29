@@ -2,26 +2,338 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>EIMS - Login</title>
-    <link rel="stylesheet" href="assets/css/login.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e2a38 0%, #2e3f52 50%, #1a3a5c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .login-wrapper {
+            display: flex;
+            width: 900px;
+            min-height: 520px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+        }
+
+        /* Left Panel */
+        .login-left {
+            flex: 1;
+            background: linear-gradient(160deg, #4e8ef7, #1a3a5c);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 40px;
+            color: white;
+            text-align: center;
+        }
+
+        .login-left .brand-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .login-left .brand-icon i {
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        .login-left h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .login-left p {
+            font-size: 0.95rem;
+            opacity: 0.85;
+            line-height: 1.6;
+        }
+
+        .login-left .features {
+            margin-top: 32px;
+            text-align: left;
+            width: 100%;
+        }
+
+        .login-left .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .login-left .feature-item i {
+            font-size: 1.1rem;
+            color: #a8d4ff;
+        }
+
+        /* Right Panel */
+        .login-right {
+            flex: 1;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 48px 44px;
+        }
+
+        .login-right .welcome {
+            margin-bottom: 32px;
+        }
+
+        .login-right .welcome h3 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1e2a38;
+            margin-bottom: 6px;
+        }
+
+        .login-right .welcome p {
+            color: #6c757d;
+            font-size: 0.95rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #344054;
+            font-size: 0.875rem;
+            margin-bottom: 6px;
+        }
+
+        .input-group-text {
+            background: #f8f9fa;
+            border-right: none;
+            color: #6c757d;
+        }
+
+        .form-control {
+            border-left: none;
+            background: #f8f9fa;
+            padding: 10px 14px;
+            font-size: 0.95rem;
+            border-color: #dee2e6;
+        }
+
+        .form-control:focus {
+            box-shadow: none;
+            border-color: #4e8ef7;
+            background: #fff;
+        }
+
+        .input-group:focus-within .input-group-text {
+            border-color: #4e8ef7;
+            background: #fff;
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, #4e8ef7, #1a3a5c);
+            border: none;
+            color: white;
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            width: 100%;
+            margin-top: 8px;
+            transition: opacity 0.2s;
+        }
+
+        .btn-login:hover {
+            opacity: 0.9;
+            color: white;
+        }
+
+        .btn-login:disabled {
+            opacity: 0.7;
+        }
+
+        .error-box {
+            background: #fff5f5;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 0.875rem;
+            display: none;
+            margin-bottom: 16px;
+        }
+
+        .toggle-password {
+            cursor: pointer;
+            background: #f8f9fa;
+            border-left: none;
+            border-color: #dee2e6;
+            color: #6c757d;
+        }
+
+        .toggle-password:hover {
+            background: #e9ecef;
+        }
+
+        .login-footer {
+            margin-top: 24px;
+            text-align: center;
+            color: #adb5bd;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 768px) {
+            .login-wrapper {
+                flex-direction: column;
+                width: 95%;
+                min-height: auto;
+            }
+            .login-left {
+                padding: 32px 24px;
+            }
+            .login-left .features {
+                display: none;
+            }
+            .login-right {
+                padding: 32px 24px;
+            }
+        }
+    </style>
 </head>
 <body>
 
-    <div class="login-container">
-        <form id="loginForm" onsubmit="handleLogin(event)">
-            <h2>EIMS Login</h2>
+<div class="login-wrapper">
 
-            <div id="loginError" style="display:none; color:red; margin-bottom:10px;"></div>
+    <!-- Left Panel -->
+    <div class="login-left">
+        <div class="brand-icon">
+            <i class="bi bi-box-seam"></i>
+        </div>
+        <h2>EIMS</h2>
+        <p>Enterprise Inventory Management System</p>
 
-            <input type="text" id="username" placeholder="Username" required />
-            <input type="password" id="password" placeholder="Password" required />
-
-            <button type="submit">Login</button>
-        </form>
+        <div class="features">
+            <div class="feature-item">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Real-time inventory tracking</span>
+            </div>
+            <div class="feature-item">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Purchase & Sales management</span>
+            </div>
+            <div class="feature-item">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Multi-warehouse support</span>
+            </div>
+            <div class="feature-item">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Smart low stock alerts</span>
+            </div>
+            <div class="feature-item">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Detailed reports & analytics</span>
+            </div>
+        </div>
     </div>
 
-    <script src="assets/js/api.js"></script>
-    <script src="assets/js/auth.js"></script>
+    <!-- Right Panel -->
+    <div class="login-right">
+        <div class="welcome">
+            <h3>Welcome back</h3>
+            <p>Sign in to your account to continue</p>
+        </div>
+
+        <div class="error-box" id="loginError"></div>
+
+        <div class="mb-3">
+            <label class="form-label">Username</label>
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="bi bi-person"></i>
+                </span>
+                <input type="text" id="username" class="form-control"
+                    placeholder="Enter your username" autocomplete="username" />
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Password</label>
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="bi bi-lock"></i>
+                </span>
+                <input type="password" id="password" class="form-control"
+                    placeholder="Enter your password" autocomplete="current-password" />
+                <button class="btn toggle-password border" type="button"
+                    onclick="togglePassword()">
+                    <i class="bi bi-eye" id="eyeIcon"></i>
+                </button>
+            </div>
+        </div>
+
+        <button class="btn btn-login" id="loginBtn" onclick="handleLogin(event)">
+            <span id="loginText">Sign In</span>
+            <span id="loginSpinner" style="display:none;">
+                <span class="spinner-border spinner-border-sm me-2"></span>
+                Signing in...
+            </span>
+        </button>
+
+        <div class="login-footer">
+            &copy; 2026 EIMS. All rights reserved.
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Redirect if already logged in
+    if (localStorage.getItem("authToken")) {
+        window.location.href = "index.html";
+    }
+
+    function togglePassword() {
+        const pwd = document.getElementById("password");
+        const icon = document.getElementById("eyeIcon");
+        if (pwd.type === "password") {
+            pwd.type = "text";
+            icon.className = "bi bi-eye-slash";
+        } else {
+            pwd.type = "password";
+            icon.className = "bi bi-eye";
+        }
+    }
+
+    // Allow Enter key to submit only when password or username is focused
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById("password").addEventListener("keydown", function(e) {
+            if (e.key === "Enter") handleLogin(e);
+        });
+        document.getElementById("username").addEventListener("keydown", function(e) {
+            if (e.key === "Enter") handleLogin(e);
+        });
+    });
+</script>
+
+<script src="assets/js/api.js"></script>
+<script src="assets/js/auth.js"></script>
 
 </body>
 </html>

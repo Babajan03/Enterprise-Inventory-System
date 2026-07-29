@@ -1,5 +1,5 @@
 async function loadComponent(id, file) {
-    const html = await fetch(file).then(r => r.text());
+    const html = await fetch(`${file}?v=${Date.now()}`).then(r => r.text());
     document.getElementById(id).innerHTML = html;
 }
 
@@ -18,7 +18,7 @@ async function loadPage(page) {
 
     $.fn.DataTable.tables({ visible: true, api: true }).destroy();
 
-    const html = await fetch(`pages/${page}.html`).then(r => r.text());
+    const html = await fetch(`pages/${page}.html?v=${Date.now()}`).then(r => r.text());
     document.getElementById("content").innerHTML = html;
 
     document.querySelectorAll(".nav-item").forEach(el => el.classList.remove("active"));
@@ -37,6 +37,7 @@ async function loadPage(page) {
                 case "purchase":    loadPurchase();    break;
                 case "sales":       loadSales();       break;
                 case "reports":     loadReports();     break;
+                case "users":       loadUsers();       break;
             }
             hideLoader();
         });
