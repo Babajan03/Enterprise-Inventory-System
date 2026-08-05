@@ -22,6 +22,12 @@ async function apiRequest(endpoint, options = {}) {
     }
 
     if (!response.ok) {
+        if (response.status === 401) {
+            localStorage.removeItem("authToken");
+            localStorage.removeItem("user");
+            window.location.href = "login.html";
+            return null;
+        }
         const message = (data && data.message) || `Request failed: ${response.status}`;
         throw new Error(message);
     }

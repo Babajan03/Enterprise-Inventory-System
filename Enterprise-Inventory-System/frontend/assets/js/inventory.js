@@ -27,7 +27,9 @@ async function loadInventory() {
                     </button>
                 `
             }
-        ]
+        ],
+        buttons: getDTExportButtons("Inventory List", "inventory"),
+        dom: defaultDTDom
     });
 }
 

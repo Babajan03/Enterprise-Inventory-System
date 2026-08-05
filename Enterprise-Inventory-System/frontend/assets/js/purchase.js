@@ -6,6 +6,7 @@ async function loadPurchase() {
         $("#purchaseTable").DataTable().destroy();
     }
     const data = await api.get("/purchase/");
+    console.log('Loaded purchase data, count:', data.length);
     purchaseTable = $("#purchaseTable").DataTable({
         data: data,
         responsive: true,
@@ -41,7 +42,9 @@ async function loadPurchase() {
                     </button>
                 `
             }
-        ]
+        ],
+        buttons: getDTExportButtons("Purchase Orders", "purchase_orders"),
+        dom: defaultDTDom
     });
 }
 
@@ -68,6 +71,7 @@ window.savePurchaseOrder = async function() {
         Remarks: document.getElementById("poRemarks").value
     };
     const result = await api.post("/purchase/", payload);
+    console.log('Create PO result:', result);
     bootstrap.Modal.getInstance(document.getElementById("purchaseModal")).hide();
     loadPurchase();
     if (result.PurchaseOrderID) {

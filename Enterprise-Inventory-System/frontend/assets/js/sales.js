@@ -44,7 +44,9 @@ async function loadSales() {
                     </button>
                 `
             }
-        ]
+        ],
+        buttons: getDTExportButtons("Sales Orders", "sales_orders"),
+        dom: defaultDTDom
     });
 }
 

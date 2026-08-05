@@ -28,13 +28,19 @@ async function loadProducts() {
             {
                 data: null,
                 render: row => `
+                    <button class="btn btn-dark btn-sm me-1" title="Generate Barcode"
+                        onclick="window.openBarcodeModal('${row.ProductCode}', '${row.ProductName}')">
+                        <i class="bi bi-upc-scan"></i>
+                    </button>
                     <button class="btn btn-warning btn-sm"
                         onclick="window.editProduct(${row.ProductID})">Edit</button>
                     <button class="btn btn-danger btn-sm ms-1"
                         onclick="window.deleteProduct(${row.ProductID})">Delete</button>
                 `
             }
-        ]
+        ],
+        buttons: getDTExportButtons("Products List", "products"),
+        dom: defaultDTDom
     });
 }
 
@@ -129,3 +135,48 @@ window.editProduct = editProduct;
 window.deleteProduct = deleteProduct;
 window.confirmDeleteProduct = confirmDeleteProduct;
 window.saveProduct = saveProduct;
+
+// Barcode & QR Code Logic
+window.openBarcodeModal = function(productCode, productName) {
+    document.getElementById("barcodeProductName").textContent = productName;
+    
+    // Generate Barcode using JsBarcode
+    JsBarcode("#barcodeSvg", productCode, {
+        format: "CODE128",
+        lineColor: "#000",
+        width: 2,
+        height: 60,
+        displayValue: true
+    });
+    
+    // Generate QR Code using qrcode.js
+    const qrcodeDiv = document.getElementById("qrcodeDiv");
+    qrcodeDiv.innerHTML = ""; // Clear previous
+    new QRCode(qrcodeDiv, {
+        text: productCode,
+        width: 128,
+        height: 128,
+        colorDark : "#000000",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+    });
+
+    new bootstrap.Modal(document.getElementById("barcodeModal")).show();
+};
+
+window.printBarcode = function() {
+    const printContent = document.getElementById("printableLabels").innerHTML;
+    const originalContent = document.body.innerHTML;
+    
+    document.body.innerHTML = `
+        <div style="text-align: center; margin-top: 50px;">
+            ${printContent}
+        </div>
+    `;
+    
+    window.print();
+    
+    // Restore original content
+    document.body.innerHTML = originalContent;
+    window.location.reload(); // Reload to reattach event listeners
+};

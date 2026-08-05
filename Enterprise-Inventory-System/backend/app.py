@@ -55,6 +55,10 @@ from routes.purchase import purchase_bp
 from routes.sales import sales_bp
 from routes.reports import reports_bp
 from routes.users import users_bp
+from routes.audit import audit_bp
+from routes.purchase_approval import purchase_approval_bp
+from routes.notifications import notifications_bp
+from routes.transfers import transfers_bp
 
 app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = "eims-xK9#mP2$qL7@nR4&wT6"
@@ -76,6 +80,10 @@ app.register_blueprint(purchase_bp)
 app.register_blueprint(sales_bp)
 app.register_blueprint(reports_bp)
 app.register_blueprint(users_bp)
+app.register_blueprint(audit_bp)
+app.register_blueprint(notifications_bp)
+app.register_blueprint(transfers_bp)
+app.register_blueprint(purchase_approval_bp)
 
 if __name__ == "__main__":
     app.run(debug=True)

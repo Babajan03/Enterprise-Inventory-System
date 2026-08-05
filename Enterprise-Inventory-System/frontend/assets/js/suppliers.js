@@ -31,7 +31,9 @@ async function loadSuppliers() {
                         onclick="window.deleteSupplier(${row.SupplierID})">Delete</button>
                 `
             }
-        ]
+        ],
+        buttons: getDTExportButtons("Suppliers List", "suppliers"),
+        dom: defaultDTDom
     });
 }
 

@@ -63,6 +63,7 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from services.auth_service import AuthService
+from services.audit_service import AuditService
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -78,7 +79,12 @@ def login():
     data = request.json
     user = AuthService.verify_login(data["Username"], data["Password"])
     if not user:
+        # We could also log failed attempts here if we wanted
         return jsonify({"success": False, "message": "Invalid username or password"}), 401
+
+    # Log successful login
+    ip_address = request.remote_addr
+    AuditService.log_activity("User Login", "Successful login", user["UserID"], user["Username"], ip_address)
 
     token = create_access_token(
         identity=str(user["UserID"]),

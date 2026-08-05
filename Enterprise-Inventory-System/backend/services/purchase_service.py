@@ -3,16 +3,30 @@ from database import get_conn
 
 class PurchaseService:
 
+
     @staticmethod
     def get_all():
         conn = get_conn()
         cursor = conn.cursor()
-        cursor.execute("EXEC purchase.SP_Get_All_Purchase_Orders")
-        columns = [column[0] for column in cursor.description]
+        query = """
+        SELECT
+            poh.PurchaseOrderID,
+            poh.PurchaseOrderNumber,
+            s.SupplierName,
+            CONVERT(varchar, poh.OrderDate, 23) AS OrderDate,
+            CONVERT(varchar, poh.ExpectedDeliveryDate, 23) AS ExpectedDeliveryDate,
+            ISNULL(poh.TotalAmount, 0) AS TotalAmount,
+            poh.Status
+        FROM purchase.PurchaseOrderHeader poh
+        LEFT JOIN master.Supplier s ON poh.SupplierID = s.SupplierID
+        """
+        cursor.execute(query)
+        columns = [col[0] for col in cursor.description]
         data = [dict(zip(columns, row)) for row in cursor.fetchall()]
         cursor.close()
         conn.close()
         return data
+
 
     @staticmethod
     def get_by_id(order_id):
@@ -47,18 +61,28 @@ class PurchaseService:
         cursor = conn.cursor()
         cursor.execute(
             "EXEC purchase.SP_Create_Purchase_Order ?,?,?,?,?",
-            data["PurchaseOrderNumber"],
             data["SupplierID"],
-            data["OrderDate"],
-            data["ExpectedDeliveryDate"],
+            data.get("ExpectedDeliveryDate"),
             data.get("Remarks", "")
         )
+        # The stored procedure returns Status, PurchaseOrderID, PurchaseOrderNumber, Message
         row = cursor.fetchone()
-        order_id = row[0] if row else None
+        if not row:
+            conn.rollback()
+            cursor.close()
+            conn.close()
+            raise Exception("Failed to create purchase order")
+        # row format: (Status, PurchaseOrderID, PurchaseOrderNumber, Message)
+        result = {
+            "status": row[0],
+            "PurchaseOrderID": row[1],
+            "PurchaseOrderNumber": row[2],
+            "message": row[3]
+        }
         conn.commit()
         cursor.close()
         conn.close()
-        return order_id
+        return result
 
     @staticmethod
     def add_item(order_id, data):
@@ -89,3 +113,28 @@ class PurchaseService:
         conn.commit()
         cursor.close()
         conn.close()
+
+    @staticmethod
+    def approve_purchase_order(po_id, user_id, decision, remarks):
+        """
+        Approve or reject a purchase order.
+        decision: "Approved" or "Rejected"
+        """
+        if decision == "Approved":
+            try:
+                conn = get_conn()
+                cursor = conn.cursor()
+                cursor.execute("EXEC purchase.SP_Approve_Purchase_Order ?", po_id)
+                conn.commit()
+                cursor.close()
+                conn.close()
+                return True, "Purchase order approved."
+            except Exception as e:
+                return False, str(e)
+        else:
+            # Reject path: update status to Rejected
+            try:
+                PurchaseService.update_status(po_id, "Rejected")
+                return True, "Purchase order rejected."
+            except Exception as e:
+                return False, str(e)

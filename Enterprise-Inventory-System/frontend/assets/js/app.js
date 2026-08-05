@@ -33,11 +33,13 @@ async function loadPage(page) {
                 case "suppliers":   loadSuppliers();   break;
                 case "customers":   loadCustomers();   break;
                 case "inventory":   loadInventory();   break;
+                case "transfers":   loadTransfers();   break;
                 case "warehouse":   loadWarehouse();   break;
                 case "purchase":    loadPurchase();    break;
                 case "sales":       loadSales();       break;
                 case "reports":     loadReports();     break;
                 case "users":       loadUsers();       break;
+                case "audit":       loadAuditLogs();   break;
             }
             hideLoader();
         });

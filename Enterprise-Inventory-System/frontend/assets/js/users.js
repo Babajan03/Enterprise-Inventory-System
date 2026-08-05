@@ -104,10 +104,12 @@ function renderUsersTable(users) {
         destroy: true,
         pageLength: 10,
         order: [[0, "desc"]],
+        buttons: getDTExportButtons("Users Directory", "users"),
         language: {
             search: '<i class="bi bi-search"></i>',
             searchPlaceholder: "Search users..."
-        }
+        },
+        dom: defaultDTDom
     });
 }
 

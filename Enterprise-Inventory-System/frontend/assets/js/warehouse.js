@@ -31,7 +31,9 @@ async function loadWarehouse() {
                         onclick="window.deleteWarehouse(${row.WarehouseId})">Delete</button>
                 `
             }
-        ]
+        ],
+        buttons: getDTExportButtons("Warehouse List", "warehouse"),
+        dom: defaultDTDom
     });
 }
 

@@ -31,7 +31,9 @@ async function loadCustomers() {
                         onclick="window.deleteCustomer(${row.CustomerId})">Delete</button>
                 `
             }
-        ]
+        ],
+        buttons: getDTExportButtons("Customers List", "customers"),
+        dom: defaultDTDom
     });
 }
 
