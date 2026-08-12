@@ -1,6 +1,4 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required
-
 from services.customer_service import CustomerService
 
 customers_bp = Blueprint(
@@ -24,21 +22,27 @@ def get_customer(customer_id):
 
 
 @customers_bp.post("/")
-@jwt_required()
 def add_customer():
-    CustomerService.add(request.json)
-    return jsonify({"success": True, "message": "Customer Added Successfully"})
+    try:
+        CustomerService.add(request.json)
+        return jsonify({"success": True, "message": "Customer Added Successfully"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
 
 
 @customers_bp.put("/<int:customer_id>")
-@jwt_required()
 def update_customer(customer_id):
-    CustomerService.update(customer_id, request.json)
-    return jsonify({"success": True, "message": "Customer Updated Successfully"})
+    try:
+        CustomerService.update(customer_id, request.json)
+        return jsonify({"success": True, "message": "Customer Updated Successfully"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
 
 
 @customers_bp.delete("/<int:customer_id>")
-@jwt_required()
 def delete_customer(customer_id):
-    CustomerService.delete(customer_id)
-    return jsonify({"success": True, "message": "Customer Deleted Successfully"})
+    try:
+        CustomerService.delete(customer_id)
+        return jsonify({"success": True, "message": "Customer Deleted Successfully"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500

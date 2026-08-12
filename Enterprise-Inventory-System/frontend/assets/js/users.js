@@ -7,7 +7,7 @@ async function loadUsers() {
         updateUserStats(usersData);
         renderUsersTable(usersData);
     } catch (err) {
-        console.error("Error loading users:", err);
+        showToast("Error loading users: " + err.message, "danger");
     }
 }
 
@@ -17,17 +17,13 @@ function updateUserStats(users) {
     const admins = users.filter(u => (u.Role || "").toLowerCase() === "admin").length;
     const staff = total - admins;
 
-    document.getElementById("userStatTotal").textContent = total;
-    document.getElementById("userStatActive").textContent = active;
-    document.getElementById("userStatAdmin").textContent = admins;
-    document.getElementById("userStatStaff").textContent = staff;
+    if (document.getElementById("userStatTotal")) document.getElementById("userStatTotal").textContent = total;
+    if (document.getElementById("userStatActive")) document.getElementById("userStatActive").textContent = active;
+    if (document.getElementById("userStatAdmin")) document.getElementById("userStatAdmin").textContent = admins;
+    if (document.getElementById("userStatStaff")) document.getElementById("userStatStaff").textContent = staff;
 }
 
 function renderUsersTable(users) {
-    if ($.fn.DataTable.isDataTable("#usersTable")) {
-        $("#usersTable").DataTable().destroy();
-    }
-
     const columns = [
         { data: "UserID", title: "ID", width: "50px" },
         {
@@ -69,7 +65,7 @@ function renderUsersTable(users) {
             render: (isActive, type, row) => `
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" ${isActive ? "checked" : ""} 
-                        onchange="toggleUserStatus(${row.UserID}, ${isActive})" title="Toggle Active Status">
+                        onchange="window.toggleUserStatus(${row.UserID}, ${isActive})" title="Toggle Active Status">
                     <span class="badge ${isActive ? "bg-success" : "bg-secondary"} ms-1">
                         ${isActive ? "Active" : "Inactive"}
                     </span>
@@ -87,33 +83,22 @@ function renderUsersTable(users) {
             className: "text-end",
             orderable: false,
             render: (data, type, row) => `
-                <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditUserModal(${row.UserID})" title="Edit User">
+                <button class="btn btn-sm btn-outline-primary me-1" onclick="window.openEditUserModal(${row.UserID})" title="Edit User">
                     <i class="bi bi-pencil"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-warning" onclick="openResetPasswordModal(${row.UserID}, '${row.Username}')" title="Reset Password">
+                <button class="btn btn-sm btn-outline-warning" onclick="window.openResetPasswordModal(${row.UserID}, '${row.Username}')" title="Reset Password">
                     <i class="bi bi-key"></i>
                 </button>
             `
         }
     ];
 
-    usersTableInstance = $("#usersTable").DataTable({
-        data: users,
-        columns: columns,
-        responsive: true,
-        destroy: true,
-        pageLength: 10,
-        order: [[0, "desc"]],
-        buttons: getDTExportButtons("Users Directory", "users"),
-        language: {
-            search: '<i class="bi bi-search"></i>',
-            searchPlaceholder: "Search users..."
-        },
-        dom: defaultDTDom
+    usersTableInstance = updateOrInitDataTable("#usersTable", usersTableInstance, users, columns, {
+        buttons: getDTExportButtons("Users Directory", "users")
     });
 }
 
-function openAddUserModal() {
+window.openAddUserModal = function() {
     document.getElementById("userForm").reset();
     document.getElementById("userId").value = "";
     document.getElementById("userModalTitle").textContent = "Add New User";
@@ -124,9 +109,9 @@ function openAddUserModal() {
 
     const modal = new bootstrap.Modal(document.getElementById("userModal"));
     modal.show();
-}
+};
 
-function openEditUserModal(userId) {
+window.openEditUserModal = function(userId) {
     const user = usersData.find(u => u.UserID === userId);
     if (!user) return;
 
@@ -145,10 +130,10 @@ function openEditUserModal(userId) {
 
     const modal = new bootstrap.Modal(document.getElementById("userModal"));
     modal.show();
-}
+};
 
-async function saveUser(event) {
-    event.preventDefault();
+window.saveUser = async function(event) {
+    if (event) event.preventDefault();
     const userId = document.getElementById("userId").value;
     const isEdit = !!userId;
 
@@ -167,8 +152,10 @@ async function saveUser(event) {
     try {
         if (isEdit) {
             await api.put(`/users/${userId}`, payload);
+            showToast("User updated successfully!", "success");
         } else {
             await api.post("/users", payload);
+            showToast("User created successfully!", "success");
         }
 
         const modalEl = document.getElementById("userModal");
@@ -177,31 +164,32 @@ async function saveUser(event) {
 
         await loadUsers();
     } catch (err) {
-        alert("Error saving user: " + err.message);
+        showToast("Error saving user: " + err.message, "danger");
     }
-}
+};
 
-async function toggleUserStatus(userId, currentStatus) {
+window.toggleUserStatus = async function(userId, currentStatus) {
     try {
         await api.put(`/users/${userId}/status`, { IsActive: !currentStatus });
+        showToast("User status updated!", "success");
         await loadUsers();
     } catch (err) {
-        alert("Error updating user status: " + err.message);
+        showToast("Error updating user status: " + err.message, "danger");
         await loadUsers();
     }
-}
+};
 
-function openResetPasswordModal(userId, username) {
+window.openResetPasswordModal = function(userId, username) {
     document.getElementById("resetPasswordForm").reset();
     document.getElementById("resetUserId").value = userId;
     document.getElementById("resetTargetUsername").textContent = "@" + username;
 
     const modal = new bootstrap.Modal(document.getElementById("resetPasswordModal"));
     modal.show();
-}
+};
 
-async function submitResetPassword(event) {
-    event.preventDefault();
+window.submitResetPassword = async function(event) {
+    if (event) event.preventDefault();
     const userId = document.getElementById("resetUserId").value;
     const newPassword = document.getElementById("resetNewPassword").value;
 
@@ -212,8 +200,27 @@ async function submitResetPassword(event) {
         const modal = bootstrap.Modal.getInstance(modalEl);
         if (modal) modal.hide();
 
-        alert("Password reset successfully!");
+        showToast("Password reset successfully!", "success");
     } catch (err) {
-        alert("Error resetting password: " + err.message);
+        showToast("Error resetting password: " + err.message, "danger");
     }
+};
+
+// Toast notification helper
+function showToast(message, type = "success") {
+    const existing = document.getElementById("appToast");
+    if (existing) existing.remove();
+    const toast = document.createElement("div");
+    toast.id = "appToast";
+    toast.className = `alert alert-${type} position-fixed shadow-lg`;
+    toast.style.cssText = "top:20px;right:20px;z-index:9999;min-width:300px;animation:slideIn 0.3s ease;";
+    toast.innerHTML = `
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi ${type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'}"></i>
+            <span>${message}</span>
+            <button type="button" class="btn-close ms-auto" onclick="this.parentElement.parentElement.remove()"></button>
+        </div>
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
 }

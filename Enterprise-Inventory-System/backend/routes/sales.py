@@ -24,25 +24,23 @@ def get_order_items(order_id):
 
 
 @sales_bp.post("/")
-@jwt_required()
 def create_order():
-    order_id = SalesService.create(request.json)
+    result = SalesService.create(request.json)
     return jsonify({
         "success": True,
         "message": "Sales Order Created",
-        "SalesOrderId": order_id
+        "SalesOrderId": result.get("SalesOrderId"),
+        "OrderNumber": result.get("OrderNumber")
     })
 
 
 @sales_bp.post("/<int:order_id>/items")
-@jwt_required()
 def add_item(order_id):
     SalesService.add_item(order_id, request.json)
     return jsonify({"success": True, "message": "Item Added Successfully"})
 
 
 @sales_bp.put("/<int:order_id>/status")
-@jwt_required()
 def update_status(order_id):
     SalesService.update_status(order_id, request.json["OrderStatus"])
     return jsonify({"success": True, "message": "Status Updated Successfully"})

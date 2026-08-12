@@ -1,6 +1,4 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required
-
 from services.supplier_service import SupplierService
 
 suppliers_bp = Blueprint(
@@ -24,21 +22,27 @@ def get_supplier(supplier_id):
 
 
 @suppliers_bp.post("/")
-@jwt_required()
 def add_supplier():
-    SupplierService.add(request.json)
-    return jsonify({"success": True, "message": "Supplier Added Successfully"})
+    try:
+        SupplierService.add(request.json)
+        return jsonify({"success": True, "message": "Supplier Added Successfully"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
 
 
 @suppliers_bp.put("/<int:supplier_id>")
-@jwt_required()
 def update_supplier(supplier_id):
-    SupplierService.update(supplier_id, request.json)
-    return jsonify({"success": True, "message": "Supplier Updated Successfully"})
+    try:
+        SupplierService.update(supplier_id, request.json)
+        return jsonify({"success": True, "message": "Supplier Updated Successfully"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
 
 
 @suppliers_bp.delete("/<int:supplier_id>")
-@jwt_required()
 def delete_supplier(supplier_id):
-    SupplierService.delete(supplier_id)
-    return jsonify({"success": True, "message": "Supplier Deleted Successfully"})
+    try:
+        SupplierService.delete(supplier_id)
+        return jsonify({"success": True, "message": "Supplier Deleted Successfully"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500

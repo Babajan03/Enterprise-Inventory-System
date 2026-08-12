@@ -1,6 +1,4 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required
-
 from services.product_service import ProductService
 
 products_bp = Blueprint(
@@ -18,32 +16,36 @@ def get_all_products():
 @products_bp.get("/<int:product_id>")
 def get_product(product_id):
     product = ProductService.get_by_id(product_id)
-
     if not product:
         return jsonify({"success": False, "message": "Product not found"}), 404
-
     return jsonify(product)
 
 
 @products_bp.post("/")
-@jwt_required()
 def add_product():
-    ProductService.add(request.json)
-    return jsonify({"success": True, "message": "Product Added Successfully"})
+    try:
+        ProductService.add(request.json)
+        return jsonify({"success": True, "message": "Product Added Successfully"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
 
 
 @products_bp.put("/<int:product_id>")
-@jwt_required()
 def update_product(product_id):
-    ProductService.update(product_id, request.json)
-    return jsonify({"success": True, "message": "Product Updated Successfully"})
+    try:
+        ProductService.update(product_id, request.json)
+        return jsonify({"success": True, "message": "Product Updated Successfully"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
 
 
 @products_bp.delete("/<int:product_id>")
-@jwt_required()
 def delete_product(product_id):
-    ProductService.delete(product_id)
-    return jsonify({"success": True, "message": "Product Deleted Successfully"})
+    try:
+        ProductService.delete(product_id)
+        return jsonify({"success": True, "message": "Product Deleted Successfully"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
 
 
 @products_bp.post("/search")

@@ -60,7 +60,7 @@ class PurchaseService:
         conn = get_conn()
         cursor = conn.cursor()
         cursor.execute(
-            "EXEC purchase.SP_Create_Purchase_Order ?,?,?,?,?",
+            "EXEC purchase.SP_Create_Purchase_Order ?,?,?",
             data["SupplierID"],
             data.get("ExpectedDeliveryDate"),
             data.get("Remarks", "")

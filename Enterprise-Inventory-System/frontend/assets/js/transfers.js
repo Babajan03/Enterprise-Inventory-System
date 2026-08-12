@@ -1,63 +1,56 @@
-let transfersTableInstance;
+let transfersTableInstance = null;
 
 async function loadTransfers() {
     try {
-        if ($.fn.DataTable.isDataTable("#transfersTable")) {
-            $("#transfersTable").DataTable().destroy();
-        }
-
         const data = await api.get("/transfers/");
-
-        transfersTableInstance = $("#transfersTable").DataTable({
-            data: data,
-            columns: [
-                { data: "TransferNumber" },
-                { 
-                    data: "TransferDate", 
-                    render: data => data ? new Date(data).toLocaleDateString() : "-"
-                },
-                { data: "ProductName" },
-                { data: "FromWarehouse" },
-                { data: "ToWarehouse" },
-                { data: "Quantity" },
-                { 
-                    data: "Status",
-                    render: function(data) {
-                        let color = "secondary";
-                        if (data === "Completed") color = "success";
-                        if (data === "Pending") color = "warning text-dark";
-                        if (data === "Cancelled") color = "danger";
-                        return `<span class="badge bg-${color}">${data}</span>`;
-                    }
-                },
-                { data: "RequestedBy" },
-                {
-                    data: null,
-                    className: "text-end",
-                    render: function(row) {
-                        if (row.Status === "Pending") {
-                            return `
-                                <button class="btn btn-sm btn-success" onclick="approveTransfer(${row.TransferID})" title="Approve Transfer">
-                                    <i class="bi bi-check-circle"></i> Approve
-                                </button>
-                            `;
-                        }
-                        return "-";
-                    }
+        const columns = [
+            { data: "TransferNumber" },
+            { 
+                data: "TransferDate", 
+                render: data => data ? new Date(data).toLocaleDateString() : "-"
+            },
+            { data: "ProductName" },
+            { data: "FromWarehouse" },
+            { data: "ToWarehouse" },
+            { data: "Quantity" },
+            { 
+                data: "Status",
+                render: function(data) {
+                    let color = "secondary";
+                    if (data === "Completed") color = "success";
+                    if (data === "Pending") color = "warning text-dark";
+                    if (data === "Cancelled") color = "danger";
+                    return `<span class="badge bg-${color}">${data}</span>`;
                 }
-            ],
-            responsive: true,
-            order: [[1, 'desc']], // Order by Date descending
-            buttons: getDTExportButtons("Stock Transfers", "transfers"),
-            dom: defaultDTDom
+            },
+            { data: "RequestedBy" },
+            {
+                data: null,
+                className: "text-end",
+                orderable: false,
+                render: function(row) {
+                    if (row.Status === "Pending") {
+                        return `
+                            <button class="btn btn-sm btn-success" onclick="window.approveTransfer(${row.TransferID})" title="Approve Transfer">
+                                <i class="bi bi-check-circle"></i> Approve
+                            </button>
+                        `;
+                    }
+                    return "-";
+                }
+            }
+        ];
+
+        transfersTableInstance = updateOrInitDataTable("#transfersTable", transfersTableInstance, data, columns, {
+            buttons: getDTExportButtons("Stock Transfers", "transfers")
         });
 
     } catch (error) {
-        console.error("Error loading transfers:", error);
+        showToast("Error loading transfers: " + error.message, "danger");
     }
 }
 
-async function openCreateTransferModal() {
+window.openCreateTransferModal = async function() {
     try {
         const products = await api.get("/products/");
         const warehouses = await api.get("/warehouse/");
@@ -76,11 +69,11 @@ async function openCreateTransferModal() {
         
         new bootstrap.Modal(document.getElementById("transferModal")).show();
     } catch (error) {
-        alert("Failed to load dependencies");
+        showToast("Failed to load dependencies: " + error.message, "danger");
     }
-}
+};
 
-async function saveTransfer() {
+window.saveTransfer = async function() {
     const payload = {
         ProductID: parseInt(document.getElementById("transferProduct").value),
         FromWarehouseID: parseInt(document.getElementById("transferFrom").value),
@@ -90,31 +83,52 @@ async function saveTransfer() {
     };
     
     if (payload.FromWarehouseID === payload.ToWarehouseID) {
-        alert("Source and destination warehouse cannot be the same.");
+        showToast("Source and destination warehouse cannot be the same.", "danger");
         return;
     }
     
     if (payload.Quantity < 1) {
-        alert("Quantity must be greater than zero.");
+        showToast("Quantity must be greater than zero.", "danger");
         return;
     }
     
     try {
         await api.post("/transfers/", payload);
         bootstrap.Modal.getInstance(document.getElementById("transferModal")).hide();
-        loadTransfers();
+        showToast("Stock transfer requested successfully!", "success");
+        await loadTransfers();
     } catch (error) {
-        alert("Failed to create transfer: " + error.message);
+        showToast("Failed to create transfer: " + error.message, "danger");
     }
-}
+};
 
-async function approveTransfer(id) {
+window.approveTransfer = async function(id) {
     if(confirm("Are you sure you want to approve this stock transfer? This will immediately move the inventory.")) {
         try {
             await api.put(`/transfers/${id}/approve`, {});
-            loadTransfers();
+            showToast("Transfer approved & inventory updated!", "success");
+            await loadTransfers();
         } catch (error) {
-            alert("Failed to approve transfer: " + error.message);
+            showToast("Failed to approve transfer: " + error.message, "danger");
         }
     }
+};
+
+// Toast notification helper
+function showToast(message, type = "success") {
+    const existing = document.getElementById("appToast");
+    if (existing) existing.remove();
+    const toast = document.createElement("div");
+    toast.id = "appToast";
+    toast.className = `alert alert-${type} position-fixed shadow-lg`;
+    toast.style.cssText = "top:20px;right:20px;z-index:9999;min-width:300px;animation:slideIn 0.3s ease;";
+    toast.innerHTML = `
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi ${type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'}"></i>
+            <span>${message}</span>
+            <button type="button" class="btn-close ms-auto" onclick="this.parentElement.parentElement.remove()"></button>
+        </div>
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
 }

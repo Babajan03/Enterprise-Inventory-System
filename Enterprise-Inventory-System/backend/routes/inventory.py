@@ -1,5 +1,4 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required
 from services.inventory_service import InventoryService
 
 inventory_bp = Blueprint("inventory", __name__, url_prefix="/inventory")
@@ -11,7 +10,18 @@ def get_all_inventory():
 
 
 @inventory_bp.put("/<int:inventory_id>/adjust")
-@jwt_required()
 def adjust_inventory(inventory_id):
-    InventoryService.adjust(inventory_id, request.json)
-    return jsonify({"success": True, "message": "Inventory Adjusted Successfully"})
+    try:
+        InventoryService.adjust(inventory_id, request.json)
+        return jsonify({"success": True, "message": "Inventory Adjusted Successfully"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+@inventory_bp.post("/receive")
+def receive_goods():
+    try:
+        InventoryService.receive_goods(request.json)
+        return jsonify({"success": True, "message": "Goods Received Successfully & Stock Updated"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500

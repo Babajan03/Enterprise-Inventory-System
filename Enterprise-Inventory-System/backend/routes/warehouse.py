@@ -1,5 +1,4 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required
 from services.warehouse_service import WarehouseService
 
 warehouse_bp = Blueprint("warehouse", __name__, url_prefix="/warehouse")
@@ -19,21 +18,27 @@ def get_warehouse(warehouse_id):
 
 
 @warehouse_bp.post("/")
-@jwt_required()
 def add_warehouse():
-    WarehouseService.add(request.json)
-    return jsonify({"success": True, "message": "Warehouse Added Successfully"})
+    try:
+        WarehouseService.add(request.json)
+        return jsonify({"success": True, "message": "Warehouse Added Successfully"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
 
 
 @warehouse_bp.put("/<int:warehouse_id>")
-@jwt_required()
 def update_warehouse(warehouse_id):
-    WarehouseService.update(warehouse_id, request.json)
-    return jsonify({"success": True, "message": "Warehouse Updated Successfully"})
+    try:
+        WarehouseService.update(warehouse_id, request.json)
+        return jsonify({"success": True, "message": "Warehouse Updated Successfully"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
 
 
 @warehouse_bp.delete("/<int:warehouse_id>")
-@jwt_required()
 def delete_warehouse(warehouse_id):
-    WarehouseService.delete(warehouse_id)
-    return jsonify({"success": True, "message": "Warehouse Deleted Successfully"})
+    try:
+        WarehouseService.delete(warehouse_id)
+        return jsonify({"success": True, "message": "Warehouse Deleted Successfully"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500

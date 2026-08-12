@@ -5,11 +5,21 @@ async function apiRequest(endpoint, options = {}) {
 
     const headers = {
         "Content-Type": "application/json",
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Pragma": "no-cache",
         ...(token ? { "Authorization": `Bearer ${token}` } : {}),
         ...options.headers
     };
 
-    const response = await fetch(API_BASE + endpoint, {
+    // Append timestamp to GET requests to force fresh data from backend SQL DB
+    let url = API_BASE + endpoint;
+    if ((!options.method || options.method === "GET")) {
+        const separator = url.includes("?") ? "&" : "?";
+        url += `${separator}_t=${Date.now()}`;
+    }
+
+    const response = await fetch(url, {
+        cache: "no-store",
         ...options,
         headers
     });

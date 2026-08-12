@@ -7,7 +7,17 @@ class SalesService:
     def get_all():
         conn = get_conn()
         cursor = conn.cursor()
-        cursor.execute("EXEC sales.SP_Get_All_Sales_Orders")
+        cursor.execute("""
+            SELECT 
+                soh.SalesOrderId,
+                soh.OrderNumber,
+                c.CustomerName,
+                CONVERT(VARCHAR, soh.OrderDate, 23) AS OrderDate,
+                ISNULL(soh.OrderStatus, 'Draft') AS OrderStatus,
+                ISNULL(soh.TotalAmount, 0) AS TotalAmount
+            FROM sales.SalesOrderHeader soh
+            LEFT JOIN sales.Customer c ON soh.CustomerId = c.CustomerId
+        """)
         columns = [column[0] for column in cursor.description]
         data = [dict(zip(columns, row)) for row in cursor.fetchall()]
         cursor.close()
@@ -34,7 +44,18 @@ class SalesService:
     def get_items(order_id):
         conn = get_conn()
         cursor = conn.cursor()
-        cursor.execute("EXEC sales.SP_Get_Sales_Order_Items ?", order_id)
+        cursor.execute("""
+            SELECT 
+                sod.SalesOrderDetailId,
+                sod.SalesOrderId,
+                p.ProductName,
+                sod.Quantity,
+                sod.UnitPrice,
+                (sod.Quantity * sod.UnitPrice) AS TotalPrice
+            FROM sales.SalesOrderDetail sod
+            JOIN master.Product p ON sod.ProductId = p.ProductID
+            WHERE sod.SalesOrderId = ?
+        """, order_id)
         columns = [column[0] for column in cursor.description]
         data = [dict(zip(columns, row)) for row in cursor.fetchall()]
         cursor.close()
@@ -46,29 +67,31 @@ class SalesService:
         conn = get_conn()
         cursor = conn.cursor()
         cursor.execute(
-            "EXEC sales.SP_Create_Sales_Order ?,?,?,?",
-            data["OrderNumber"],
+            "EXEC sales.SP_Create_Sales_Order ?,?",
             data["CustomerId"],
-            data["OrderDate"],
-            data.get("OrderStatus", "Draft")
+            "SYSTEM"
         )
         row = cursor.fetchone()
-        order_id = row[0] if row else None
+        result = {}
+        if row:
+            columns = [col[0] for col in cursor.description]
+            result = dict(zip(columns, row))
         conn.commit()
         cursor.close()
         conn.close()
-        return order_id
+        return result
 
     @staticmethod
     def add_item(order_id, data):
         conn = get_conn()
         cursor = conn.cursor()
         cursor.execute(
-            "EXEC sales.SP_Add_Sales_Order_Item ?,?,?,?",
+            "EXEC sales.SP_Add_Sales_Order_Item ?,?,?,?,?",
             order_id,
             data["ProductId"],
             data["Quantity"],
-            data["UnitPrice"]
+            data["UnitPrice"],
+            "SYSTEM"
         )
         conn.commit()
         cursor.close()
@@ -78,11 +101,16 @@ class SalesService:
     def update_status(order_id, status):
         conn = get_conn()
         cursor = conn.cursor()
-        cursor.execute(
-            "EXEC sales.SP_Update_Sales_Order_Status ?,?",
-            order_id,
-            status
-        )
+        if status in ('Confirmed', 'Approved', 'CONFIRMED', 'APPROVED'):
+            cursor.execute("EXEC sales.SP_Approve_Sales_Order ?,?", order_id, "SYSTEM")
+        elif status in ('Shipped', 'SHIPPED'):
+            cursor.execute("EXEC sales.SP_Ship_Sales_Order ?,?", order_id, "SYSTEM")
+        else:
+            cursor.execute(
+                "UPDATE sales.SalesOrderHeader SET OrderStatus = ? WHERE SalesOrderId = ?",
+                status,
+                order_id
+            )
         conn.commit()
         cursor.close()
         conn.close()

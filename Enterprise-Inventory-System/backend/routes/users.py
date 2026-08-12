@@ -1,12 +1,10 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required
 from services.user_service import UserService
 
 users_bp = Blueprint("users", __name__, url_prefix="/users")
 
 
 @users_bp.get("")
-@jwt_required()
 def get_users():
     try:
         users = UserService.get_all_users()
@@ -16,7 +14,6 @@ def get_users():
 
 
 @users_bp.get("/<int:user_id>")
-@jwt_required()
 def get_user(user_id):
     user = UserService.get_user_by_id(user_id)
     if not user:
@@ -25,7 +22,6 @@ def get_user(user_id):
 
 
 @users_bp.post("")
-@jwt_required()
 def add_user():
     data = request.json
     if not data or not data.get("Username") or not data.get("Password") or not data.get("FullName"):
@@ -41,7 +37,6 @@ def add_user():
 
 
 @users_bp.put("/<int:user_id>")
-@jwt_required()
 def update_user(user_id):
     data = request.json
     if not data or not data.get("FullName"):
@@ -55,7 +50,6 @@ def update_user(user_id):
 
 
 @users_bp.put("/<int:user_id>/status")
-@jwt_required()
 def toggle_status(user_id):
     data = request.json
     is_active = data.get("IsActive", True)
@@ -68,7 +62,6 @@ def toggle_status(user_id):
 
 
 @users_bp.put("/<int:user_id>/reset-password")
-@jwt_required()
 def reset_password(user_id):
     data = request.json
     new_password = data.get("NewPassword")

@@ -9,16 +9,16 @@ function getDTExportButtons(title, filename) {
             extend: 'excelHtml5',
             title: exportTitle,
             filename: exportFilename,
-            className: 'btn btn-sm btn-outline-success border me-1',
-            text: '<i class="bi bi-file-earmark-excel me-1"></i> Excel',
+            className: 'btn btn-sm btn-success text-white me-1 fw-semibold shadow-sm',
+            text: '<i class="bi bi-file-earmark-excel-fill me-1"></i> Excel',
             exportOptions: { columns: ':not(:last-child)' }
         },
         {
             extend: 'pdfHtml5',
             title: exportTitle,
             filename: exportFilename,
-            className: 'btn btn-sm btn-outline-danger border me-1',
-            text: '<i class="bi bi-file-earmark-pdf me-1"></i> PDF',
+            className: 'btn btn-sm btn-danger text-white me-1 fw-semibold shadow-sm',
+            text: '<i class="bi bi-file-earmark-pdf-fill me-1"></i> PDF',
             orientation: 'landscape',
             pageSize: 'A4',
             exportOptions: { columns: ':not(:last-child)' }
@@ -27,24 +27,55 @@ function getDTExportButtons(title, filename) {
             extend: 'csvHtml5',
             title: exportTitle,
             filename: exportFilename,
-            className: 'btn btn-sm btn-outline-primary border me-1',
-            text: '<i class="bi bi-file-earmark-text me-1"></i> CSV',
+            className: 'btn btn-sm btn-primary text-white me-1 fw-semibold shadow-sm',
+            text: '<i class="bi bi-file-earmark-text-fill me-1"></i> CSV',
             exportOptions: { columns: ':not(:last-child)' }
         },
         {
             extend: 'print',
             title: exportTitle,
-            className: 'btn btn-sm btn-outline-secondary border me-1',
-            text: '<i class="bi bi-printer me-1"></i> Print',
+            className: 'btn btn-sm btn-secondary text-white me-1 fw-semibold shadow-sm',
+            text: '<i class="bi bi-printer-fill me-1"></i> Print',
             exportOptions: { columns: ':not(:last-child)' }
         },
         {
             extend: 'copy',
-            className: 'btn btn-sm btn-outline-dark border',
-            text: '<i class="bi bi-clipboard me-1"></i> Copy',
+            className: 'btn btn-sm btn-dark text-white me-1 fw-semibold shadow-sm',
+            text: '<i class="bi bi-clipboard-fill me-1"></i> Copy',
             exportOptions: { columns: ':not(:last-child)' }
         }
     ];
 }
 
-const defaultDTDom = '<"d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3"<"d-flex align-items-center gap-2"lB>f>rt<"d-flex justify-content-between align-items-center mt-3"ip>';
+// Bootstrap 5 DataTables DOM layout string
+const defaultDTDom = '<"row mb-3 align-items-center"<"col-md-6 d-flex align-items-center gap-2"lB><"col-md-6"f>>' +
+                     '<"row"<"col-12"tr>>' +
+                     '<"row mt-3 align-items-center"<"col-md-6"i><"col-md-6 d-flex justify-content-end"p>>';
+
+/**
+ * Robust DataTables Manager - Updates existing table cleanly without DOM destruction
+ * or initializes a new DataTable with full pagination and page length controls.
+ */
+function updateOrInitDataTable(tableSelector, existingInstance, data, columns, options = {}) {
+    if ($.fn.DataTable.isDataTable(tableSelector) && existingInstance) {
+        existingInstance.clear();
+        existingInstance.rows.add(data);
+        existingInstance.draw(false);
+        return existingInstance;
+    } else {
+        if ($.fn.DataTable.isDataTable(tableSelector)) {
+            $(tableSelector).DataTable().destroy();
+        }
+        const defaultConfig = {
+            data: data,
+            columns: columns,
+            responsive: true,
+            pageLength: 10,
+            lengthMenu: [[10, 20, 50, 100, -1], [10, 20, 50, 100, "All"]],
+            dom: defaultDTDom,
+            order: [[0, 'desc']],
+            ...options
+        };
+        return $(tableSelector).DataTable(defaultConfig);
+    }
+}

@@ -22,7 +22,22 @@ class InventoryService:
             "EXEC inventory.SP_Adjust_Inventory ?,?,?",
             inventory_id,
             data["Quantity"],
-            data["Remarks"]
+            data.get("Remarks", "Inventory Adjustment")
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+    @staticmethod
+    def receive_goods(data):
+        conn = get_conn()
+        cursor = conn.cursor()
+        cursor.execute(
+            "EXEC inventory.SP_Receive_Goods ?,?,?,?",
+            data["InventoryId"],
+            data["Quantity"],
+            data.get("ReferenceNumber", "GRN-DIRECT"),
+            "SYSTEM"
         )
         conn.commit()
         cursor.close()
