@@ -77,6 +77,10 @@ EXEC master.SP_Add_Product
             data["ReorderLevel"]
         )
 
+        row = cursor.fetchone()
+        if row and row[0] == 'Failed':
+            raise Exception(row[1])
+
         conn.commit()
 
         cursor.close()
@@ -112,6 +116,10 @@ EXEC master.SP_Update_Product
             data["ReorderLevel"]
         )
 
+        row = cursor.fetchone()
+        if row and row[0] == 'Failed':
+            raise Exception(row[1])
+
         conn.commit()
 
         cursor.close()
@@ -127,6 +135,10 @@ EXEC master.SP_Update_Product
             "EXEC master.SP_Delete_Product ?",
             product_id
         )
+
+        row = cursor.fetchone()
+        if row and row[0] == 'Failed':
+            raise Exception(row[1])
 
         conn.commit()
 

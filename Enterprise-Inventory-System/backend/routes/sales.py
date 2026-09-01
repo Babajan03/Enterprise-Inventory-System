@@ -1,5 +1,4 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required
 from services.sales_service import SalesService
 
 sales_bp = Blueprint("sales", __name__, url_prefix="/sales")
@@ -25,22 +24,31 @@ def get_order_items(order_id):
 
 @sales_bp.post("/")
 def create_order():
-    result = SalesService.create(request.json)
-    return jsonify({
-        "success": True,
-        "message": "Sales Order Created",
-        "SalesOrderId": result.get("SalesOrderId"),
-        "OrderNumber": result.get("OrderNumber")
-    })
+    try:
+        result = SalesService.create(request.json)
+        return jsonify({
+            "success": True,
+            "message": "Sales Order Created",
+            "SalesOrderId": result.get("SalesOrderId"),
+            "OrderNumber": result.get("OrderNumber")
+        })
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
 
 
 @sales_bp.post("/<int:order_id>/items")
 def add_item(order_id):
-    SalesService.add_item(order_id, request.json)
-    return jsonify({"success": True, "message": "Item Added Successfully"})
+    try:
+        SalesService.add_item(order_id, request.json)
+        return jsonify({"success": True, "message": "Item Added Successfully"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
 
 
 @sales_bp.put("/<int:order_id>/status")
 def update_status(order_id):
-    SalesService.update_status(order_id, request.json["OrderStatus"])
-    return jsonify({"success": True, "message": "Status Updated Successfully"})
+    try:
+        SalesService.update_status(order_id, request.json["OrderStatus"])
+        return jsonify({"success": True, "message": "Status Updated Successfully"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
