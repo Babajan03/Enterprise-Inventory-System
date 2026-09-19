@@ -1,53 +1,38 @@
-from flask import Blueprint, jsonify, request
-from services.product_service import ProductService
+from flask import Blueprint, request, jsonify
+from ..services.product_service import ProductService
 
-products_bp = Blueprint(
-    "products",
-    __name__,
-    url_prefix="/products"
-)
+products_bp = Blueprint('products', __name__)
 
+@products_bp.route('/products', methods=['GET'])
+def get_products():
+    try:
+        data = ProductService.get_all()
+        return jsonify({'success': True, 'data': data}), 200
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
 
-@products_bp.get("/")
-def get_all_products():
-    return jsonify(ProductService.get_all())
-
-
-@products_bp.get("/<int:product_id>")
-def get_product(product_id):
-    product = ProductService.get_by_id(product_id)
-    if not product:
-        return jsonify({"success": False, "message": "Product not found"}), 404
-    return jsonify(product)
-
-
-@products_bp.post("/")
+@products_bp.route('/products', methods=['POST'])
 def add_product():
     try:
-        ProductService.add(request.json)
-        return jsonify({"success": True, "message": "Product Added Successfully"})
+        product = request.get_json()
+        ProductService.add(product)
+        return jsonify({'success': True, 'message': 'Product added'}), 201
     except Exception as e:
-        return jsonify({"success": False, "message": str(e)}), 500
+        return jsonify({'success': False, 'message': str(e)}), 400
 
-
-@products_bp.put("/<int:product_id>")
-def update_product(product_id):
+@products_bp.route('/products/<int:pid>', methods=['PUT'])
+def update_product(pid):
     try:
-        ProductService.update(product_id, request.json)
-        return jsonify({"success": True, "message": "Product Updated Successfully"})
+        product = request.get_json()
+        ProductService.update(pid, product)
+        return jsonify({'success': True, 'message': 'Product updated'}), 200
     except Exception as e:
-        return jsonify({"success": False, "message": str(e)}), 500
+        return jsonify({'success': False, 'message': str(e)}), 400
 
-
-@products_bp.delete("/<int:product_id>")
-def delete_product(product_id):
+@products_bp.route('/products/<int:pid>', methods=['DELETE'])
+def delete_product(pid):
     try:
-        ProductService.delete(product_id)
-        return jsonify({"success": True, "message": "Product Deleted Successfully"})
+        ProductService.delete(pid)
+        return jsonify({'success': True, 'message': 'Product deleted'}), 200
     except Exception as e:
-        return jsonify({"success": False, "message": str(e)}), 500
-
-
-@products_bp.post("/search")
-def search_product():
-    return jsonify(ProductService.search(request.json))
+        return jsonify({'success': False, 'message': str(e)}), 400

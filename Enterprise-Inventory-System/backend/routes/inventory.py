@@ -1,27 +1,33 @@
-from flask import Blueprint, jsonify, request
+"""Inventory route blueprint – CRUD-like endpoints for Inventory actions.
+Currently only provides GET (list) and placeholder POST/PUT/DELETE.
+"""
+from flask import Blueprint, request, jsonify
 from services.inventory_service import InventoryService
 
-inventory_bp = Blueprint("inventory", __name__, url_prefix="/inventory")
+inventory_bp = Blueprint('inventory', __name__)
 
-
-@inventory_bp.get("/")
-def get_all_inventory():
-    return jsonify(InventoryService.get_all())
-
-
-@inventory_bp.put("/<int:inventory_id>/adjust")
-def adjust_inventory(inventory_id):
+@inventory_bp.route('/inventory', methods=['GET'])
+def get_inventory():
     try:
-        InventoryService.adjust(inventory_id, request.json)
-        return jsonify({"success": True, "message": "Inventory Adjusted Successfully"})
+        data = InventoryService.get_all()
+        return jsonify({'success': True, 'data': data}), 200
     except Exception as e:
-        return jsonify({"success": False, "message": str(e)}), 500
+        return jsonify({'success': False, 'message': str(e)}), 500
 
-
-@inventory_bp.post("/receive")
-def receive_goods():
+@inventory_bp.route('/inventory/adjust', methods=['POST'])
+def adjust_inventory():
     try:
-        InventoryService.receive_goods(request.json)
-        return jsonify({"success": True, "message": "Goods Received Successfully & Stock Updated"})
+        payload = request.get_json()
+        InventoryService.adjust(payload)
+        return jsonify({'success': True, 'message': 'Adjustment recorded'}), 200
     except Exception as e:
-        return jsonify({"success": False, "message": str(e)}), 500
+        return jsonify({'success': False, 'message': str(e)}), 400
+
+@inventory_bp.route('/inventory/receive', methods=['POST'])
+def receive_inventory():
+    try:
+        payload = request.get_json()
+        InventoryService.receive(payload)
+        return jsonify({'success': True, 'message': 'Receipt recorded'}), 200
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 400

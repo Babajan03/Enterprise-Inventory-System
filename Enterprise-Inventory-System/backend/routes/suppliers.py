@@ -1,48 +1,41 @@
-from flask import Blueprint, jsonify, request
+"""Suppliers route blueprint – CRUD operations for Suppliers.
+All endpoints return JSON with {success, data/message} and use try/except.
+"""
+from flask import Blueprint, request, jsonify
 from services.supplier_service import SupplierService
 
-suppliers_bp = Blueprint(
-    "suppliers",
-    __name__,
-    url_prefix="/suppliers"
-)
+suppliers_bp = Blueprint('suppliers', __name__)
 
+@suppliers_bp.route('/suppliers', methods=['GET'])
+def get_suppliers():
+    try:
+        data = SupplierService.get_all()
+        return jsonify({'success': True, 'data': data}), 200
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
 
-@suppliers_bp.get("/")
-def get_all_suppliers():
-    return jsonify(SupplierService.get_all())
-
-
-@suppliers_bp.get("/<int:supplier_id>")
-def get_supplier(supplier_id):
-    supplier = SupplierService.get_by_id(supplier_id)
-    if not supplier:
-        return jsonify({"success": False, "message": "Supplier not found"}), 404
-    return jsonify(supplier)
-
-
-@suppliers_bp.post("/")
+@suppliers_bp.route('/suppliers', methods=['POST'])
 def add_supplier():
     try:
-        SupplierService.add(request.json)
-        return jsonify({"success": True, "message": "Supplier Added Successfully"})
+        payload = request.get_json()
+        SupplierService.add(payload)
+        return jsonify({'success': True, 'message': 'Supplier added'}), 201
     except Exception as e:
-        return jsonify({"success": False, "message": str(e)}), 500
+        return jsonify({'success': False, 'message': str(e)}), 400
 
-
-@suppliers_bp.put("/<int:supplier_id>")
-def update_supplier(supplier_id):
+@suppliers_bp.route('/suppliers/<int:sid>', methods=['PUT'])
+def update_supplier(sid):
     try:
-        SupplierService.update(supplier_id, request.json)
-        return jsonify({"success": True, "message": "Supplier Updated Successfully"})
+        payload = request.get_json()
+        SupplierService.update(sid, payload)
+        return jsonify({'success': True, 'message': 'Supplier updated'}), 200
     except Exception as e:
-        return jsonify({"success": False, "message": str(e)}), 500
+        return jsonify({'success': False, 'message': str(e)}), 400
 
-
-@suppliers_bp.delete("/<int:supplier_id>")
-def delete_supplier(supplier_id):
+@suppliers_bp.route('/suppliers/<int:sid>', methods=['DELETE'])
+def delete_supplier(sid):
     try:
-        SupplierService.delete(supplier_id)
-        return jsonify({"success": True, "message": "Supplier Deleted Successfully"})
+        SupplierService.delete(sid)
+        return jsonify({'success': True, 'message': 'Supplier deleted'}), 200
     except Exception as e:
-        return jsonify({"success": False, "message": str(e)}), 500
+        return jsonify({'success': False, 'message': str(e)}), 400

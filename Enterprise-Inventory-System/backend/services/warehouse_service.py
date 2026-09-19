@@ -1,83 +1,40 @@
-from database import get_conn
-
+"""Warehouse service – basic CRUD using direct SQL statements.
+"""
+import pyodbc
+from typing import List, Dict, Any
+from ..database import get_conn
 
 class WarehouseService:
+    @staticmethod
+    def get_all() -> List[Dict[str, Any]]:
+        conn = get_conn()
+        cur = conn.cursor()
+        cur.execute("SELECT WarehouseID, WarehouseName, Location FROM Warehouses")
+        cols = [c[0] for c in cur.description]
+        rows = [dict(zip(cols, r)) for r in cur.fetchall()]
+        cur.close(); conn.close()
+        return rows
 
     @staticmethod
-    def get_all():
-        conn = get_conn()
-        cursor = conn.cursor()
-        cursor.execute("EXEC inventory.SP_Get_All_Warehouses")
-        columns = [column[0] for column in cursor.description]
-        data = [dict(zip(columns, row)) for row in cursor.fetchall()]
-        cursor.close()
-        conn.close()
-        return data
-
-    @staticmethod
-    def get_by_id(warehouse_id):
-        conn = get_conn()
-        cursor = conn.cursor()
-        cursor.execute("EXEC inventory.SP_Get_Warehouse_By_Id ?", warehouse_id)
-        row = cursor.fetchone()
-        if not row:
-            cursor.close()
-            conn.close()
-            return None
-        columns = [column[0] for column in cursor.description]
-        result = dict(zip(columns, row))
-        cursor.close()
-        conn.close()
-        return result
-
-    @staticmethod
-    def add(data):
-        conn = get_conn()
-        cursor = conn.cursor()
-        cursor.execute(
-            "EXEC inventory.SP_Add_Warehouse ?,?,?,?,?,?,?,?,?,?",
-            data["WarehouseCode"],
-            data["WarehouseName"],
-            data["AddressLine1"],
-            data["City"],
-            data["State"],
-            data["Country"],
-            data["PostalCode"],
-            data["ContactPerson"],
-            data["ContactNumber"],
-            data["IsActive"]
+    def add(wh: Dict[str, Any]) -> None:
+        conn = get_conn(); cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO Warehouses (WarehouseName, Location) VALUES (?, ?)",
+            wh.get('WarehouseName'), wh.get('Location')
         )
-        conn.commit()
-        cursor.close()
-        conn.close()
+        conn.commit(); cur.close(); conn.close()
 
     @staticmethod
-    def update(warehouse_id, data):
-        conn = get_conn()
-        cursor = conn.cursor()
-        cursor.execute(
-            "EXEC inventory.SP_Update_Warehouse ?,?,?,?,?,?,?,?,?,?,?",
-            warehouse_id,
-            data["WarehouseCode"],
-            data["WarehouseName"],
-            data["AddressLine1"],
-            data["City"],
-            data["State"],
-            data["Country"],
-            data["PostalCode"],
-            data["ContactPerson"],
-            data["ContactNumber"],
-            data["IsActive"]
+    def update(wid: int, wh: Dict[str, Any]) -> None:
+        conn = get_conn(); cur = conn.cursor()
+        cur.execute(
+            "UPDATE Warehouses SET WarehouseName = ?, Location = ? WHERE WarehouseID = ?",
+            wh.get('WarehouseName'), wh.get('Location'), wid
         )
-        conn.commit()
-        cursor.close()
-        conn.close()
+        conn.commit(); cur.close(); conn.close()
 
     @staticmethod
-    def delete(warehouse_id):
-        conn = get_conn()
-        cursor = conn.cursor()
-        cursor.execute("EXEC inventory.SP_Delete_Warehouse ?", warehouse_id)
-        conn.commit()
-        cursor.close()
-        conn.close()
+    def delete(wid: int) -> None:
+        conn = get_conn(); cur = conn.cursor()
+        cur.execute("DELETE FROM Warehouses WHERE WarehouseID = ?", wid)
+        conn.commit(); cur.close(); conn.close()
