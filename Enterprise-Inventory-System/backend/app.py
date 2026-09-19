@@ -1,8 +1,26 @@
 import os
+from flask import Flask, jsonify, send_from_directory, after_this_request
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager
 from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 
 app = Flask(__name__, static_folder='../frontend', static_url_path='')
+CORS(app)
+
+# JWT configuration
+app.config['JWT_SECRET_KEY'] = 'replace-with-strong-secret'
+jwt = JWTManager(app)
+
+# Security headers for all responses
+@after_this_request
+def set_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['Content-Security-Policy'] = "default-src 'self'"
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    return response
+
 CORS(app)
 
 # Register blueprints (will be created later)
@@ -18,6 +36,7 @@ from routes.sales import sales_bp
 from routes.transfers import transfers_bp
 from routes.forecast import forecast_bp
 from routes.anomaly import anomaly_bp
+from routes.dashboard_api import dashboard_bp
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
 app.register_blueprint(products_bp, url_prefix='/api')
 app.register_blueprint(suppliers_bp, url_prefix='/api')

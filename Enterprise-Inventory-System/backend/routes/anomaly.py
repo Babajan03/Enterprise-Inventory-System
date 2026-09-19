@@ -3,10 +3,13 @@ GET /anomaly returns JSON with list of row indices flagged as outliers.
 """
 from flask import Blueprint, jsonify
 from services.anomaly_service import AnomalyService
+from decorators import jwt_protect, role_required
 
 anomaly_bp = Blueprint('anomaly', __name__)
 
 @anomaly_bp.route('/anomaly', methods=['GET'])
+@jwt_protect
+@role_required('admin')
 def get_anomalies():
     try:
         indices = AnomalyService.detect()
