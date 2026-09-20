@@ -3,7 +3,7 @@ No stored‑procedure result rows, so pyodbc exceptions are caught by the route.
 """
 import pyodbc
 from typing import List, Dict, Any
-from ..database import get_conn
+from database import get_conn
 
 class SupplierService:
     @staticmethod

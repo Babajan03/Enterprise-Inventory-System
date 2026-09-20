@@ -1,10 +1,4 @@
 from flask import Blueprint, jsonify
-from ..decorators import jwt_protect, role_required
-
-@dashboard_bp.route('/dashboard/full-summary', methods=['GET'])
-@jwt_protect
-@role_required('admin')
-def full_summary():
 from decorators import jwt_protect, role_required
 
 # Simple dashboard API returning aggregated placeholder data for the front‑end dashboard.
@@ -13,6 +7,8 @@ from decorators import jwt_protect, role_required
 dashboard_bp = Blueprint('dashboard', __name__)
 
 @dashboard_bp.route('/dashboard/full-summary', methods=['GET'])
+@jwt_protect
+@role_required('admin')
 def full_summary():
     # Placeholder KPI metrics
     metrics = {

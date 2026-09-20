@@ -5,7 +5,7 @@ row indices that are considered anomalies.
 import pandas as pd
 from sklearn.ensemble import IsolationForest
 from typing import List, Dict
-from ..database import get_conn
+from database import get_conn
 
 class AnomalyService:
     @staticmethod

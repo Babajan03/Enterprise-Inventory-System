@@ -2,7 +2,7 @@
 All endpoints return JSON with {success, data/message} and use try/except.
 """
 from flask import Blueprint, request, jsonify
-from ..services.customer_service import CustomerService
+from services.customer_service import CustomerService
 
 customers_bp = Blueprint('customers', __name__)
 

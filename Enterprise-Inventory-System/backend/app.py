@@ -1,5 +1,5 @@
 import os
-from flask import Flask, jsonify, send_from_directory, after_this_request
+from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask import Flask, jsonify, send_from_directory
@@ -13,13 +13,13 @@ app.config['JWT_SECRET_KEY'] = 'replace-with-strong-secret'
 jwt = JWTManager(app)
 
 # Security headers for all responses
-@after_this_request
+@app.after_request
 def set_security_headers(response):
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['X-Frame-Options'] = 'DENY'
     response.headers['Content-Security-Policy'] = "default-src 'self'"
     response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
-    return response
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
 
 CORS(app)
 

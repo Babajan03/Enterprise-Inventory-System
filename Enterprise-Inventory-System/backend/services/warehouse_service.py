@@ -2,7 +2,7 @@
 """
 import pyodbc
 from typing import List, Dict, Any
-from ..database import get_conn
+from database import get_conn
 
 class WarehouseService:
     @staticmethod

@@ -3,7 +3,7 @@ Uses stored procedures that return a status row (Success/Failed) for Add/Update/
 """
 import pyodbc
 from typing import List, Dict, Any
-from ..database import get_conn
+from database import get_conn
 
 class ProductService:
     @staticmethod

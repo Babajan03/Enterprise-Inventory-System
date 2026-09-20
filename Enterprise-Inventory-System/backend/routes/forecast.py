@@ -3,7 +3,7 @@ GET /forecast/<product_id>?periods=N returns JSON with list of date/forecast.
 """
 from flask import Blueprint, request, jsonify
 from services.forecast_service import ForecastService
-from ..decorators import jwt_protect, role_required
+from decorators import jwt_protect, role_required
 
 forecast_bp = Blueprint('forecast', __name__)
 

@@ -2,10 +2,9 @@
 It pulls historical sales quantity per day for the given product and returns a list of
 predicted dates with the forecasted quantity.
 """
-import pandas as pd
-from prophet import Prophet
+
 from typing import List, Dict
-from ..database import get_conn
+from database import get_conn
 
 class ForecastService:
     @staticmethod
