@@ -74,7 +74,7 @@ def register():
     return jsonify({"success": True, "message": "User Registered Successfully"})
 
 
-@auth_bp.post("/login")
+@auth_bp.route("/login", methods=["POST"])
 def login():
     data = request.json
     user = AuthService.verify_login(data["Username"], data["Password"])

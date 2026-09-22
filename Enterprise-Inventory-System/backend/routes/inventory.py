@@ -1,20 +1,18 @@
-"""Inventory route blueprint – CRUD-like endpoints for Inventory actions.
-Currently only provides GET (list) and placeholder POST/PUT/DELETE.
-"""
 from flask import Blueprint, request, jsonify
 from services.inventory_service import InventoryService
 
-inventory_bp = Blueprint('inventory', __name__)
+inventory_bp = Blueprint('inventory', __name__, url_prefix='/inventory')
 
-@inventory_bp.route('/inventory', methods=['GET'])
+@inventory_bp.route('', methods=['GET'])
+@inventory_bp.route('/', methods=['GET'])
 def get_inventory():
     try:
         data = InventoryService.get_all()
-        return jsonify({'success': True, 'data': data}), 200
+        return jsonify(data), 200
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
-@inventory_bp.route('/inventory/adjust', methods=['POST'])
+@inventory_bp.route('/adjust', methods=['POST'])
 def adjust_inventory():
     try:
         payload = request.get_json()
@@ -23,7 +21,7 @@ def adjust_inventory():
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 400
 
-@inventory_bp.route('/inventory/receive', methods=['POST'])
+@inventory_bp.route('/receive', methods=['POST'])
 def receive_inventory():
     try:
         payload = request.get_json()

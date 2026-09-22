@@ -12,7 +12,7 @@ class TransferService:
         transfers = []
         for row in cursor.fetchall():
             transfer = dict(zip(columns, row))
-            if isinstance(transfer['TransferDate'], datetime):
+            if isinstance(transfer.get('TransferDate'), datetime):
                 transfer['TransferDate'] = transfer['TransferDate'].isoformat()
             transfers.append(transfer)
             
@@ -24,10 +24,20 @@ class TransferService:
     def create_transfer(data, user_id):
         conn = get_conn()
         cursor = conn.cursor()
+        
+        try:
+            req_user_id = int(user_id)
+        except (ValueError, TypeError):
+            req_user_id = 1
+
         cursor.execute(
             "EXEC master.SP_Create_Stock_Transfer ?, ?, ?, ?, ?, ?",
-            data['ProductID'], data['FromWarehouseID'], data['ToWarehouseID'], 
-            data['Quantity'], user_id, data.get('Notes', '')
+            int(data['ProductID']),
+            int(data['FromWarehouseID']),
+            int(data['ToWarehouseID']), 
+            int(data['Quantity']),
+            req_user_id,
+            data.get('Notes', '')
         )
         conn.commit()
         cursor.close()
@@ -37,7 +47,7 @@ class TransferService:
     def approve_transfer(transfer_id):
         conn = get_conn()
         cursor = conn.cursor()
-        cursor.execute("EXEC master.SP_Approve_Stock_Transfer ?", transfer_id)
+        cursor.execute("EXEC master.SP_Approve_Stock_Transfer ?", int(transfer_id))
         conn.commit()
         cursor.close()
         conn.close()

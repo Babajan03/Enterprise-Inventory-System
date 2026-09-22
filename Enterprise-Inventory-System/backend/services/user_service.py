@@ -16,6 +16,10 @@ class UserService:
         return users
 
     @staticmethod
+    def get_all():
+        return UserService.get_all_users()
+
+    @staticmethod
     def get_user_by_id(user_id):
         conn = get_conn()
         cursor = conn.cursor()
@@ -61,6 +65,10 @@ class UserService:
         return True
 
     @staticmethod
+    def add(data):
+        return UserService.add_user(data)
+
+    @staticmethod
     def update_user(user_id, data):
         conn = get_conn()
         cursor = conn.cursor()
@@ -78,6 +86,10 @@ class UserService:
         return True
 
     @staticmethod
+    def update(user_id, data):
+        return UserService.update_user(user_id, data)
+
+    @staticmethod
     def toggle_user_status(user_id, is_active):
         conn = get_conn()
         cursor = conn.cursor()
@@ -90,6 +102,10 @@ class UserService:
         cursor.close()
         conn.close()
         return True
+
+    @staticmethod
+    def delete(user_id):
+        return UserService.toggle_user_status(user_id, False)
 
     @staticmethod
     def reset_password(user_id, new_password):

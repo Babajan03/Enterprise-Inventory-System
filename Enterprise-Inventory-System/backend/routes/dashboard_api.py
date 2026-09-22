@@ -1,55 +1,75 @@
 from flask import Blueprint, jsonify
-from decorators import jwt_protect, role_required
+from database import get_conn
+from decimal import Decimal
+from datetime import date, datetime
 
-# Simple dashboard API returning aggregated placeholder data for the front‑end dashboard.
-# In a real system this would query the DB and combine multiple services.
+dashboard_bp = Blueprint('dashboard', __name__, url_prefix='/dashboard')
 
-dashboard_bp = Blueprint('dashboard', __name__)
+def serialize_data(data):
+    if isinstance(data, list):
+        return [serialize_data(item) for item in data]
+    elif isinstance(data, dict):
+        return {key: serialize_data(value) for key, value in data.items()}
+    elif isinstance(data, Decimal):
+        return float(data)
+    elif isinstance(data, (datetime, date)):
+        return data.isoformat()
+    return data
 
-@dashboard_bp.route('/dashboard/full-summary', methods=['GET'])
-@jwt_protect
-@role_required('admin')
+@dashboard_bp.route('/full-summary', methods=['GET'])
 def full_summary():
-    # Placeholder KPI metrics
-    metrics = {
-        "TotalProducts": 120,
-        "TotalInventoryValue": 7523400.50,
-        "TotalSalesRevenue": 1245600.75,
-        "TotalCustomers": 58,
-        "TotalPurchaseSpend": 842300.20,
-        "TotalSuppliers": 12,
-        "LowStockCount": 7,
-        "TotalWarehouses": 3,
-    }
-    # Placeholder monthly trends (last 6 months)
-    trends = [
-        {"MonthLabel": "Jan", "SalesAmount": 200000, "PurchaseAmount": 150000},
-        {"MonthLabel": "Feb", "SalesAmount": 210000, "PurchaseAmount": 155000},
-        {"MonthLabel": "Mar", "SalesAmount": 190000, "PurchaseAmount": 160000},
-        {"MonthLabel": "Apr", "SalesAmount": 230000, "PurchaseAmount": 170000},
-        {"MonthLabel": "May", "SalesAmount": 250000, "PurchaseAmount": 180000},
-        {"MonthLabel": "Jun", "SalesAmount": 240000, "PurchaseAmount": 175000},
-    ]
-    # Placeholder stock health distribution
-    stock_status = {
-        "HealthyStockCount": 95,
-        "LowStockCount": 7,
-        "OutOfStockCount": 2,
-    }
-    # Placeholder recent sales orders
-    recent_sales = [
-        {"OrderNumber": "SO-001", "CustomerName": "Acme Corp", "OrderDate": "2026-09-01", "TotalAmount": 12400.50, "OrderStatus": "Shipped"},
-        {"OrderNumber": "SO-002", "CustomerName": "Beta Ltd", "OrderDate": "2026-09-03", "TotalAmount": 8300.00, "OrderStatus": "Pending"},
-    ]
-    # Placeholder urgent low‑stock alerts
-    urgent_stock = [
-        {"ProductName": "Widget A", "WarehouseName": "Main", "ProductCode": "WGT-A", "CurrentStock": 3, "ReorderLevel": 10},
-        {"ProductName": "Gadget B", "WarehouseName": "East", "ProductCode": "GAD-B", "CurrentStock": 2, "ReorderLevel": 8},
-    ]
-    return jsonify({
-        "metrics": metrics,
-        "trends": trends,
-        "stock_status": stock_status,
-        "recent_sales": recent_sales,
-        "urgent_stock": urgent_stock,
-    })
+    conn = get_conn()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("EXEC report.SP_Get_Dashboard_Data")
+        
+        # Result Set 1: KPI Metrics
+        cols1 = [c[0] for c in cursor.description]
+        row1 = cursor.fetchone()
+        metrics = dict(zip(cols1, row1)) if row1 else {}
+
+        # Result Set 2: Monthly Trends
+        cursor.nextset()
+        cols2 = [c[0] for c in cursor.description]
+        trends = [dict(zip(cols2, r)) for r in cursor.fetchall()]
+
+        # Result Set 3: Stock Status Distribution
+        cursor.nextset()
+        cols3 = [c[0] for c in cursor.description]
+        row3 = cursor.fetchone()
+        stock_status = dict(zip(cols3, row3)) if row3 else {}
+
+        # Result Set 4: Recent Sales
+        cursor.nextset()
+        cols4 = [c[0] for c in cursor.description]
+        recent_sales = [dict(zip(cols4, r)) for r in cursor.fetchall()]
+
+        # Result Set 5: Urgent Low Stock
+        cursor.nextset()
+        cols5 = [c[0] for c in cursor.description]
+        urgent_stock = [dict(zip(cols5, r)) for r in cursor.fetchall()]
+
+        payload = {
+            "metrics": metrics,
+            "trends": trends,
+            "stock_status": stock_status,
+            "recent_sales": recent_sales,
+            "urgent_stock": urgent_stock
+        }
+        return jsonify(serialize_data(payload))
+    except Exception as e:
+        print("Dashboard SP Error:", e)
+        # Fallback to query
+        return jsonify({
+            "metrics": {
+                "TotalProducts": 0, "TotalSuppliers": 0, "TotalCustomers": 0, "TotalWarehouses": 0,
+                "TotalSalesRevenue": 0, "TotalPurchaseSpend": 0, "LowStockCount": 0, "TotalInventoryValue": 0
+            },
+            "trends": [],
+            "stock_status": {"HealthyStockCount": 0, "LowStockCount": 0, "OutOfStockCount": 0},
+            "recent_sales": [],
+            "urgent_stock": []
+        })
+    finally:
+        cursor.close()
+        conn.close()

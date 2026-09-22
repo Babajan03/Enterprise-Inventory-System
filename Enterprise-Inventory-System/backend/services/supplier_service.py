@@ -1,7 +1,7 @@
-"""Supplier service – basic CRUD using simple SQL statements.
-No stored‑procedure result rows, so pyodbc exceptions are caught by the route.
+"""Supplier service – CRUD using database stored procedures and master.Supplier table.
 """
 import pyodbc
+import time
 from typing import List, Dict, Any
 from database import get_conn
 
@@ -10,7 +10,7 @@ class SupplierService:
     def get_all() -> List[Dict[str, Any]]:
         conn = get_conn()
         cursor = conn.cursor()
-        cursor.execute("SELECT SupplierID, SupplierName, Contact, Phone FROM Suppliers")
+        cursor.execute("EXEC master.SP_Get_All_Suppliers")
         columns = [c[0] for c in cursor.description]
         rows = [dict(zip(columns, r)) for r in cursor.fetchall()]
         cursor.close()
@@ -18,14 +18,40 @@ class SupplierService:
         return rows
 
     @staticmethod
+    def get_by_id(sid: int) -> Dict[str, Any]:
+        conn = get_conn()
+        cursor = conn.cursor()
+        cursor.execute("EXEC master.SP_Get_Supplier_By_Id ?", sid)
+        row = cursor.fetchone()
+        if not row:
+            cursor.close()
+            conn.close()
+            return None
+        cols = [c[0] for c in cursor.description]
+        res = dict(zip(cols, row))
+        cursor.close()
+        conn.close()
+        return res
+
+    @staticmethod
     def add(supplier: Dict[str, Any]) -> None:
         conn = get_conn()
         cursor = conn.cursor()
+        code = supplier.get('SupplierCode') or f"SUP-{int(time.time())}"
         cursor.execute(
-            "INSERT INTO Suppliers (SupplierName, Contact, Phone) VALUES (?, ?, ?)",
+            "EXEC master.SP_Add_Supplier ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?",
+            code,
             supplier.get('SupplierName'),
-            supplier.get('Contact'),
-            supplier.get('Phone')
+            supplier.get('ContactPerson', supplier.get('Contact', '')),
+            supplier.get('Email', ''),
+            supplier.get('Phone', ''),
+            supplier.get('GSTNumber', ''),
+            supplier.get('AddressLine1', ''),
+            supplier.get('City', ''),
+            supplier.get('StateName', ''),
+            supplier.get('CountryName', 'India'),
+            supplier.get('PostalCode', ''),
+            supplier.get('IsActive', True)
         )
         conn.commit()
         cursor.close()
@@ -36,11 +62,20 @@ class SupplierService:
         conn = get_conn()
         cursor = conn.cursor()
         cursor.execute(
-            "UPDATE Suppliers SET SupplierName = ?, Contact = ?, Phone = ? WHERE SupplierID = ?",
+            "EXEC master.SP_Update_Supplier ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?",
+            supplier_id,
+            supplier.get('SupplierCode', f"SUP-{supplier_id}"),
             supplier.get('SupplierName'),
-            supplier.get('Contact'),
-            supplier.get('Phone'),
-            supplier_id
+            supplier.get('ContactPerson', supplier.get('Contact', '')),
+            supplier.get('Email', ''),
+            supplier.get('Phone', ''),
+            supplier.get('GSTNumber', ''),
+            supplier.get('AddressLine1', ''),
+            supplier.get('City', ''),
+            supplier.get('StateName', ''),
+            supplier.get('CountryName', 'India'),
+            supplier.get('PostalCode', ''),
+            supplier.get('IsActive', True)
         )
         conn.commit()
         cursor.close()
@@ -50,7 +85,7 @@ class SupplierService:
     def delete(supplier_id: int) -> None:
         conn = get_conn()
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM Suppliers WHERE SupplierID = ?", supplier_id)
+        cursor.execute("EXEC master.SP_Delete_Supplier ?", supplier_id)
         conn.commit()
         cursor.close()
         conn.close()

@@ -1,5 +1,5 @@
 """Product service handling CRUD operations against SQL Server.
-Uses stored procedures that return a status row (Success/Failed) for Add/Update/Delete.
+Uses master.SP_Add_Product and master.SP_Update_Product stored procedures with correct parameter ordering.
 """
 import pyodbc
 from typing import List, Dict, Any
@@ -25,25 +25,24 @@ class ProductService:
             "EXEC master.SP_Add_Product ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?",
             product.get('ProductCode'),
             product.get('ProductName'),
-            product.get('CategoryID'),
-            product.get('BrandID'),
-            product.get('UnitID'),
-            product.get('TaxID'),
-            product.get('CurrencyID'),
-            product.get('ReorderLevel'),
-            product.get('Packaging'),
-            product.get('CostPrice'),
-            product.get('SellingPrice'),
-            product.get('Discount'),
-            product.get('MinStock'),
-            product.get('MaxStock'),
-            product.get('IsActive'),
-            product.get('CreatedBy')
+            product.get('ProductDescription', ''),
+            product.get('SKU', ''),
+            product.get('Barcode', ''),
+            product.get('HSNCode', ''),
+            product.get('CategoryID', 1),
+            product.get('BrandID', 1),
+            product.get('UnitID', 1),
+            product.get('TaxID', 1),
+            product.get('CurrencyID', 1),
+            product.get('CostPrice', 0),
+            product.get('SellingPrice', 0),
+            product.get('MinimumStock', 0),
+            product.get('MaximumStock', 100),
+            product.get('ReorderLevel', 10)
         )
-        # Expect a result row: (Status, Message)
         row = cursor.fetchone()
-        if row and row[0] != 'Success':
-            raise Exception(f"Add product failed: {row[1]}")
+        if row and row[0] == 'Failed':
+            raise Exception(row[1])
         conn.commit()
         cursor.close()
         conn.close()
@@ -53,28 +52,27 @@ class ProductService:
         conn = get_conn()
         cursor = conn.cursor()
         cursor.execute(
-            "EXEC master.SP_Update_Product ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?",
+            "EXEC master.SP_Update_Product ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?",
             product_id,
-            product.get('ProductCode'),
             product.get('ProductName'),
-            product.get('CategoryID'),
-            product.get('BrandID'),
-            product.get('UnitID'),
-            product.get('TaxID'),
-            product.get('CurrencyID'),
-            product.get('ReorderLevel'),
-            product.get('Packaging'),
-            product.get('CostPrice'),
-            product.get('SellingPrice'),
-            product.get('Discount'),
-            product.get('MinStock'),
-            product.get('MaxStock'),
-            product.get('IsActive'),
-            product.get('ModifiedBy')
+            product.get('ProductDescription', ''),
+            product.get('SKU', ''),
+            product.get('Barcode', ''),
+            product.get('HSNCode', ''),
+            product.get('CategoryID', 1),
+            product.get('BrandID', 1),
+            product.get('UnitID', 1),
+            product.get('TaxID', 1),
+            product.get('CurrencyID', 1),
+            product.get('CostPrice', 0),
+            product.get('SellingPrice', 0),
+            product.get('MinimumStock', 0),
+            product.get('MaximumStock', 100),
+            product.get('ReorderLevel', 10)
         )
         row = cursor.fetchone()
-        if row and row[0] != 'Success':
-            raise Exception(f"Update product failed: {row[1]}")
+        if row and row[0] == 'Failed':
+            raise Exception(row[1])
         conn.commit()
         cursor.close()
         conn.close()
@@ -85,8 +83,8 @@ class ProductService:
         cursor = conn.cursor()
         cursor.execute("EXEC master.SP_Delete_Product ?", product_id)
         row = cursor.fetchone()
-        if row and row[0] != 'Success':
-            raise Exception(f"Delete product failed: {row[1]}")
+        if row and row[0] == 'Failed':
+            raise Exception(row[1])
         conn.commit()
         cursor.close()
         conn.close()
